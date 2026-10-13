@@ -2,6 +2,219 @@
   "$comment": "示范信源：首次启动时导入（scripts/seed.ts），已存在的不会被覆盖。之后在后台“信源”里新建、修改和暂停。字段说明见 docs/customize.md。",
   "sources": [
     {
+      "id": "rss-eetimes",
+      "name": "EE Times",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.eetimes.com/feed/"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 90,
+      "tags": [
+        "媒体"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-eenews-europe",
+      "name": "eeNews Europe",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.eenewseurope.com/rss"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "媒体"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-semiengineering",
+      "name": "SemiEngineering",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://semiengineering.com/feed/"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "媒体",
+        "半导体"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-trendforce",
+      "name": "TrendForce 集邦咨询",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.trendforce.com/news/feed/"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "媒体",
+        "市场数据"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "半导体与 PCB 市场数据。只用英文站 feed；中文站 feed（trendforce.cn）的 link 指向测试域名、pubDate 全为 1970，数据不可信。"
+    },
+    {
+      "id": "rss-edn",
+      "name": "EDN",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.edn.com/rss"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "媒体",
+        "设计"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-electronics-org",
+      "name": "Global Electronics Association（IPC）",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.electronics.org/rss.xml"
+      },
+      "tier": "T1",
+      "owner_entity_id": "ipc",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "官方",
+        "行业统计"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "北美 PCB 与 EMS 月度统计、IPC 标准发布的一手来源。注意：不要用 ipc.org.cn/rss.xml（内容全是导航 item，无信息价值）。"
+    },
+    {
+      "id": "rss-pcea",
+      "name": "PCEA（Circuits Assembly 主办方）",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://pcea.net/feed/"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "媒体",
+        "市场数据"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "Circuits Assembly / PCD&F 主办方，且大量公开转载 N.T. Information 的 Nakahara PCB 市场分析；NTI 官网 DNS 不可达，抓这里即可。"
+    },
+    {
+      "id": "rss-3dincites",
+      "name": "3D InCites",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.3dincites.com/feed"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "媒体",
+        "先进封装"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "先进封装与载板技术。注意：Chrome UA 会被 Cloudflare 403，需固定桌面 Safari UA 抓取。"
+    },
+    {
+      "id": "rss-dianyuan",
+      "name": "电源网",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.dianyuan.com/rss.xml"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "媒体",
+        "中文"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "中文电源与电子制造技术媒体，覆盖 PCB 设计与电源硬件。"
+    },
+    {
+      "id": "rss-ttm-ir",
+      "name": "TTM Technologies 投资者关系",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://investors.ttm.com/rss/news-releases.xml"
+      },
+      "tier": "T1",
+      "owner_entity_id": "ttm",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "官方"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-ats",
+      "name": "AT&S",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.ats.net/en/feed/"
+      },
+      "tier": "T1",
+      "owner_entity_id": "ats-corp",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "官方"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "web-cpca-news",
+      "name": "CPCA 中国电子电路行业协会",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a.lk, a[href*='show-']",
+        "baseUrl": "https://www.cpca.org.cn",
+        "url": "https://www.cpca.org.cn/",
+        "linkSelector": "a.lk, a[href*='show-']"
+      },
+      "tier": "T1",
+      "owner_entity_id": "cpca",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "官方",
+        "行业协会"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "没有 RSS，用网页列表抓首页；选择器要在后台试抓后按实际 DOM 调整。"
+    },
+    {
       "id": "rss-openai-news",
       "name": "OpenAI News",
       "kind": "rss",
@@ -26,10 +239,7 @@
       "name": "Google DeepMind",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://deepmind.google/blog/rss.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://deepmind.google/blog/rss.xml"
       },
       "tier": "T1",
       "owner_entity_id": "google",
@@ -46,18 +256,14 @@
       "name": "Google Research",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://research.google/blog/rss/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://research.google/blog/rss/"
       },
       "tier": "T1",
       "owner_entity_id": "google",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 240,
       "tags": [
-        "官方",
-        "研究"
+        "官方"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -67,18 +273,15 @@
       "name": "Hugging Face Blog",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://huggingface.co/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://huggingface.co/blog/feed.xml"
       },
       "tier": "T1",
       "owner_entity_id": "hugging-face",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 180,
       "tags": [
         "官方",
-        "开源"
+        "开源生态"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -88,18 +291,14 @@
       "name": "Microsoft Research",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.microsoft.com/en-us/research/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://www.microsoft.com/en-us/research/feed/"
       },
       "tier": "T1",
       "owner_entity_id": "microsoft",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 360,
       "tags": [
-        "官方",
-        "研究"
+        "官方"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -109,17 +308,15 @@
       "name": "NVIDIA Blog",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://blogs.nvidia.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://blogs.nvidia.com/feed/"
       },
       "tier": "T1",
       "owner_entity_id": "nvidia",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 180,
       "tags": [
-        "官方"
+        "官方",
+        "算力/芯片"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -129,18 +326,14 @@
       "name": "AWS Machine Learning Blog",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://aws.amazon.com/blogs/machine-learning/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://aws.amazon.com/blogs/machine-learning/feed/"
       },
       "tier": "T1",
-      "owner_entity_id": null,
+      "owner_entity_id": "amazon",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 360,
       "tags": [
-        "官方",
-        "教程"
+        "官方"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -150,17 +343,15 @@
       "name": "GitHub Blog · AI & ML",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://github.blog/ai-and-ml/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://github.blog/ai-and-ml/feed/"
       },
       "tier": "T1",
-      "owner_entity_id": null,
+      "owner_entity_id": "github",
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 240,
       "tags": [
-        "官方"
+        "官方",
+        "开源生态"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -170,15 +361,11 @@
       "name": "Mistral AI",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://mistral.ai/news/rss",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://mistral.ai/news/rss"
       },
       "tier": "T1",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 360,
       "tags": [
         "官方"
       ],
@@ -190,17 +377,13 @@
       "name": "Berkeley AI Research",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://bair.berkeley.edu/blog/feed.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://bair.berkeley.edu/blog/feed.xml"
       },
       "tier": "T1",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 180,
+      "interval_minutes": 360,
       "tags": [
-        "研究"
+        "学术"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -210,13 +393,9 @@
       "name": "The Verge · AI",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
       },
       "tier": "T2",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
@@ -230,13 +409,9 @@
       "name": "TechCrunch · AI",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://techcrunch.com/category/artificial-intelligence/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://techcrunch.com/category/artificial-intelligence/feed/"
       },
       "tier": "T2",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
       "interval_minutes": 60,
       "tags": [
@@ -250,15 +425,11 @@
       "name": "Ars Technica · AI",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://arstechnica.com/ai/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://arstechnica.com/ai/feed/"
       },
       "tier": "T2",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 60,
+      "interval_minutes": 120,
       "tags": [
         "媒体"
       ],
@@ -270,15 +441,11 @@
       "name": "MIT Technology Review · AI",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.technologyreview.com/topic/artificial-intelligence/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://www.technologyreview.com/topic/artificial-intelligence/feed"
       },
       "tier": "T2",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 240,
       "tags": [
         "媒体"
       ],
@@ -290,15 +457,11 @@
       "name": "The Decoder",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://the-decoder.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://the-decoder.com/feed/"
       },
       "tier": "T2",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 60,
+      "interval_minutes": 90,
       "tags": [
         "媒体"
       ],
@@ -310,15 +473,11 @@
       "name": "Simon Willison",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://simonwillison.net/atom/everything/",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://simonwillison.net/atom/everything/"
       },
       "tier": "T2",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 120,
+      "interval_minutes": 180,
       "tags": [
         "个人"
       ],
@@ -330,18 +489,13 @@
       "name": "Import AI",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://importai.substack.com/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://importai.substack.com/feed"
       },
       "tier": "T2",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 180,
+      "interval_minutes": 360,
       "tags": [
-        "个人",
-        "周刊"
+        "Newsletter"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
@@ -351,20 +505,258 @@
       "name": "Latent Space",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.latent.space/feed",
-        "_aihot": {
-          "initialBackfillLimit": 8
-        }
+        "feedUrl": "https://www.latent.space/feed"
       },
       "tier": "T2",
-      "owner_entity_id": null,
       "participation_mode": "editorial",
-      "interval_minutes": 180,
+      "interval_minutes": 360,
       "tags": [
-        "个人"
+        "Newsletter"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false
+    },
+    {
+      "id": "web-jiwei",
+      "name": "集微网 ijiwei",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='/html/']",
+        "baseUrl": "https://www.laoyaoba.com",
+        "url": "https://www.laoyaoba.com/",
+        "linkSelector": "a[href*='/html/']"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 90,
+      "tags": [
+        "媒体",
+        "中文",
+        "半导体"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "服务端渲染完整，含标签与相对时间；覆盖半导体封测、载板与设备。旧域名 jwinsights.com 证书有问题，用 laoyaoba.com。"
+    },
+    {
+      "id": "web-iconnect007",
+      "name": "PCB007 / I-Connect007",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='/article/']",
+        "baseUrl": "https://iconnect007.com",
+        "url": "https://iconnect007.com/landing/pcb",
+        "linkSelector": "a[href*='/article/']"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "媒体",
+        "垂直"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "PCB 垂直领域最专业的英文媒体矩阵。公开 RSS 路径全部 404（RSS 中心需登录），只能走 HTML 列表抓取。"
+    },
+    {
+      "id": "web-cpca-industry",
+      "name": "CPCA 行业动态",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='show-']",
+        "baseUrl": "https://www.cpca.org.cn",
+        "url": "https://www.cpca.org.cn/industry.html",
+        "linkSelector": "a[href*='show-']"
+      },
+      "tier": "T1",
+      "owner_entity_id": "cpca",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "官方",
+        "行业协会"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "中国 PCB 行业动态与统计数据；选择器需在后台试抓后按实际 DOM 调整。"
+    },
+    {
+      "id": "web-tpca",
+      "name": "TPCA 台湾电路板协会",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='content.php']",
+        "baseUrl": "https://www.tpca.org.tw",
+        "url": "https://www.tpca.org.tw/content.php?menu_no=141&mod_no=24",
+        "linkSelector": "a[href*='content.php']"
+      },
+      "tier": "T1",
+      "owner_entity_id": "tpca",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "官方",
+        "行业协会",
+        "繁体中文"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "必须带 menu_no 与 mod_no 参数，否则 404。部分统计以 PDF 附件发布。"
+    },
+    {
+      "id": "web-ncgroup",
+      "name": "NCAB Group",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='/news/']",
+        "baseUrl": "https://www.ncabgroup.com",
+        "url": "https://www.ncabgroup.com/news",
+        "linkSelector": "a[href*='/news/']"
+      },
+      "tier": "T1",
+      "owner_entity_id": "ncab",
+      "participation_mode": "editorial",
+      "interval_minutes": 360,
+      "tags": [
+        "官方",
+        "分销"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "PCB 分销商，新闻常含交期与市场评论，是价格与供需的旁证来源。"
+    },
+    {
+      "id": "web-kla",
+      "name": "KLA Newsroom",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='/newsroom/']",
+        "baseUrl": "https://www.kla.com",
+        "url": "https://www.kla.com/newsroom",
+        "linkSelector": "a[href*='/newsroom/']"
+      },
+      "tier": "T1",
+      "owner_entity_id": "orbotech-kla",
+      "participation_mode": "editorial",
+      "interval_minutes": 480,
+      "tags": [
+        "官方",
+        "设备"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "Orbotech（PCB 直接成像与检测设备）母公司，设备侧的一手信息。"
+    },
+    {
+      "id": "web-rogers",
+      "name": "Rogers Corporation",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='/news/']",
+        "baseUrl": "https://www.rogerscorp.com",
+        "url": "https://www.rogerscorp.com/news",
+        "linkSelector": "a[href*='/news/']"
+      },
+      "tier": "T1",
+      "owner_entity_id": "rogers",
+      "participation_mode": "editorial",
+      "interval_minutes": 480,
+      "tags": [
+        "官方",
+        "材料"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "高频板材与散热材料的一手信息；AI 服务器用高频高速板的关键材料方。"
+    },
+    {
+      "id": "web-isola",
+      "name": "Isola Group",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='/news/']",
+        "baseUrl": "https://www.isola-group.com",
+        "url": "https://www.isola-group.com/news",
+        "linkSelector": "a[href*='/news/']"
+      },
+      "tier": "T1",
+      "owner_entity_id": "isola",
+      "participation_mode": "editorial",
+      "interval_minutes": 480,
+      "tags": [
+        "官方",
+        "材料"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "覆铜板与层压材料厂商，材料侧一手信息。"
+    },
+    {
+      "id": "web-eefocus",
+      "name": "与非网",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='/article/']",
+        "baseUrl": "https://www.eefocus.com",
+        "url": "https://www.eefocus.com/article/",
+        "linkSelector": "a[href*='/article/']"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "媒体",
+        "中文",
+        "设计"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "中文硬件设计与电子工程媒体，覆盖 PCB 设计与制造。"
+    },
+    {
+      "id": "web-shengyi",
+      "name": "生益科技",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='/news']",
+        "baseUrl": "https://www.syst.com.cn",
+        "url": "https://www.syst.com.cn/",
+        "linkSelector": "a[href*='/news']"
+      },
+      "tier": "T1",
+      "owner_entity_id": "shengyi",
+      "participation_mode": "editorial",
+      "interval_minutes": 480,
+      "tags": [
+        "官方",
+        "材料"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "中国大陆覆铜板龙头，涨价函与产能信息的一手来源。"
+    },
+    {
+      "id": "web-chinafastprint",
+      "name": "兴森科技",
+      "kind": "web_list",
+      "config": {
+        "itemSelector": "a[href*='/news']",
+        "baseUrl": "https://www.chinafastprint.com",
+        "url": "https://www.chinafastprint.com/",
+        "linkSelector": "a[href*='/news']"
+      },
+      "tier": "T1",
+      "owner_entity_id": "fastprint-circuit",
+      "participation_mode": "editorial",
+      "interval_minutes": 480,
+      "tags": [
+        "官方",
+        "载板"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "_note": "IC 载板与样板快板厂商，载板国产化进展的一手来源。"
     }
   ]
 }

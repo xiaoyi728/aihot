@@ -2,18 +2,18 @@
   "groups": [
     {
       "key": "company",
-      "name": "公司与模型",
-      "blurb": "按厂商追踪模型、产品与公司动态"
+      "name": "公司与厂商",
+      "blurb": "按厂商追踪 AI 模型产品与 PCB 企业经营动态"
     },
     {
       "key": "field",
       "name": "技术方向",
-      "blurb": "按技术领域深挖：Agent、多模态、具身智能……"
+      "blurb": "按技术领域深挖：Agent、多模态、HDI、载板、高多层板……"
     },
     {
       "key": "genre",
       "name": "内容形态",
-      "blurb": "按内容类型浏览：论文、教程、观点、政策……"
+      "blurb": "按内容类型浏览：论文、教程、观点、财报、产能……"
     }
   ],
   "topics": [
@@ -332,6 +332,183 @@
         "政策/监管"
       ],
       "definition": "AI 相关政策法规与政府监管动态：立法进展、出口管制与全球治理框架的追踪。"
+    },
+    {
+      "slug": "avary-holding",
+      "name": "鹏鼎控股",
+      "group": "company",
+      "entityId": "avary-holding",
+      "definition": "鹏鼎控股（臻鼎集团）的全部动态：FPC 与 HDI 产能、苹果供应链、经营与扩产。"
+    },
+    {
+      "slug": "dongshan-precision",
+      "name": "东山精密",
+      "group": "company",
+      "entityId": "dongshan-precision",
+      "definition": "东山精密的全部动态：FPC、MLED 与新能源汽车部件布局、并购与经营。"
+    },
+    {
+      "slug": "scc",
+      "name": "深南电路",
+      "group": "company",
+      "entityId": "scc",
+      "definition": "深南电路的全部动态：高多层板、封装基板与数据中心用板、产能与订单。"
+    },
+    {
+      "slug": "fastprint-circuit",
+      "name": "兴森科技",
+      "group": "company",
+      "entityId": "fastprint-circuit",
+      "definition": "兴森科技的全部动态：IC 载板、样板快板与半导体测试板、产能与订单。"
+    },
+    {
+      "slug": "shengyi",
+      "name": "生益科技",
+      "group": "company",
+      "entityId": "shengyi",
+      "definition": "生益科技的全部动态：覆铜板价格与产能、高频高速材料、子公司生益电子。"
+    },
+    {
+      "slug": "wus-printed",
+      "name": "沪电股份",
+      "group": "company",
+      "entityId": "wus-printed",
+      "definition": "沪电股份（沪士电子）的全部动态：服务器与交换机用高多层板、汽车电子、产能与订单。"
+    },
+    {
+      "slug": "kinwong",
+      "name": "景旺电子",
+      "group": "company",
+      "entityId": "kinwong",
+      "definition": "景旺电子的全部动态：刚性板、FPC 与金属基板、产能与经营。"
+    },
+    {
+      "slug": "victory-giant",
+      "name": "胜宏科技",
+      "group": "company",
+      "entityId": "victory-giant",
+      "definition": "胜宏科技的全部动态：高多层板与 HDI、AI 服务器用板、扩产与订单。"
+    },
+    {
+      "slug": "unimicron",
+      "name": "欣兴电子",
+      "group": "company",
+      "entityId": "unimicron",
+      "definition": "欣兴电子的全部动态：载板与高多层板、月度营收、资本开支。"
+    },
+    {
+      "slug": "ttm",
+      "name": "TTM Technologies",
+      "group": "company",
+      "entityId": "ttm",
+      "definition": "TTM Technologies 的全部动态：北美航空航天与国防 PCB、经营与并购。"
+    },
+    {
+      "slug": "ats-corp",
+      "name": "AT&S",
+      "group": "company",
+      "entityId": "ats-corp",
+      "definition": "AT&S 的全部动态：欧洲载板与 HDI、产能投资与经营。"
+    },
+    {
+      "slug": "ncab",
+      "name": "NCAB Group",
+      "group": "company",
+      "entityId": "ncab",
+      "definition": "NCAB Group 的全部动态：PCB 分销、市场评论与交期信息。"
+    },
+    {
+      "slug": "ipc",
+      "name": "IPC / 全球电子协会",
+      "group": "company",
+      "entityId": "ipc",
+      "definition": "IPC 与全球电子协会的全部动态：标准发布、北美 PCB 与 EMS 统计数据。"
+    },
+    {
+      "slug": "cpca",
+      "name": "CPCA 中国电子电路行业协会",
+      "group": "company",
+      "entityId": "cpca",
+      "definition": "中国电子电路行业协会的全部动态：行业统计、展会与产业政策。"
+    },
+    {
+      "slug": "high-layer",
+      "name": "高多层板",
+      "group": "field",
+      "tags": [
+        "高多层板"
+      ],
+      "definition": "服务器、交换机与通信设备用高多层板：层数突破、产能与订单。"
+    },
+    {
+      "slug": "hdi",
+      "name": "HDI",
+      "group": "field",
+      "tags": [
+        "HDI"
+      ],
+      "definition": "高密度互连板：阶数提升、激光钻孔与 mSAP 工艺、产能与应用。"
+    },
+    {
+      "slug": "ic-substrate",
+      "name": "IC 载板",
+      "group": "field",
+      "tags": [
+        "IC载板",
+        "ABF",
+        "类载板"
+      ],
+      "definition": "IC 载板与 ABF、BT 基板：国产化进展、产能与认证。"
+    },
+    {
+      "slug": "fpc",
+      "name": "软板 FPC",
+      "group": "field",
+      "tags": [
+        "软板/FPC"
+      ],
+      "definition": "柔性电路板与软硬结合板：折叠屏、汽车与可穿戴应用。"
+    },
+    {
+      "slug": "ccl-materials",
+      "name": "覆铜板与材料",
+      "group": "field",
+      "tags": [
+        "覆铜板",
+        "铜箔",
+        "树脂/油墨"
+      ],
+      "definition": "覆铜板、铜箔、树脂与油墨：价格、供需与厂商动作。"
+    },
+    {
+      "slug": "pcb-equipment",
+      "name": "PCB 设备",
+      "group": "field",
+      "tags": [
+        "钻孔/曝光",
+        "电镀/蚀刻",
+        "检测/AOI"
+      ],
+      "definition": "PCB 专用设备：激光钻孔、LDI 曝光、电镀与检测设备的订单与交付。"
+    },
+    {
+      "slug": "ai-server-pcb",
+      "name": "AI 服务器用板",
+      "group": "field",
+      "tags": [
+        "服务器/交换机",
+        "算力/芯片"
+      ],
+      "definition": "AI 算力平台带动的 PCB 需求：GB 系列与 Vera Rubin 平台、高多层板与载板订单。"
+    },
+    {
+      "slug": "auto-pcb",
+      "name": "汽车电子用板",
+      "group": "field",
+      "tags": [
+        "汽车电子"
+      ],
+      "definition": "汽车电子 PCB：三电系统、智驾与域控制器用板需求。"
     }
   ]
 }

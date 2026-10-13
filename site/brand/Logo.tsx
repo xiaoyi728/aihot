@@ -1,11 +1,11 @@
 // 站点的字标和圆环标记：页面用 Wordmark 画站名（size 是高度，单位像素），RingMark 是小标记，转起来就是加载动画。
-// 这里用站名排字；有自己的 Logo 时，把 Wordmark 换成你的 SVG（保持同样的参数）。
+// 字标是仓鼠角色图（/logo.png，由 api 从 site/brand/ 发出）加站名文字；RingMark 保留作加载动画。
 import { SITE } from "../site.ts";
 
 export function Wordmark({ size = 24, className = "", title = SITE.name }: { size?: number; className?: string; title?: string }) {
   return (
     <span className={`inline-flex items-center font-black leading-none tracking-[-0.03em] ${className}`} style={{ fontSize: Math.round(size * 0.92) }} aria-label={title} role="img">
-      <span aria-hidden="true" className="mr-[0.3em] inline-block size-[0.42em] rounded-full bg-accent" />
+      <img src="/logo.png" alt="" aria-hidden="true" className="mr-[0.3em] shrink-0 rounded-full object-cover" style={{ width: size, height: size }} />
       <span aria-hidden="true">{SITE.name}</span>
     </span>
   );

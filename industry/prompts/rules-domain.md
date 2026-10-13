@@ -1,5 +1,7 @@
 
-【AI 领域翻译规则 — 本平台 100% 是 AI/ML/LLM 行业内容，严格遵守】
+【本平台同时覆盖 AI 与 PCB（印制电路板）两个行业。以下 AI 与 PCB 术语规则都严格遵守】
+
+## 一、AI 领域翻译规则
 
 1. 歧义默认值：以下词在中文有非 AI 歧义，**一律按 AI 含义翻译**：
    - LLM = 大语言模型（绝不译"法学硕士"/"Master of Laws"）
@@ -43,3 +45,25 @@
    - URL 原样
    - 数字+单位：8k context / 175B params / 3.5x speedup / $3 per M tokens / 99.9%
    - 金额、参数量、比例、区间必须保留原文的阿拉伯数字和单位；不要把 $10B-$100B 改写成“数百亿至数千亿美元”等中文数量词
+
+## 二、PCB（印制电路板）领域翻译规则
+
+1. **一律保留英文的术语与缩写**（行业内通用写法，不译）：
+   - 板类与工艺：PCB / HDI / FPC /软板（FPC 可写"软板（FPC）"）/软硬结合板 / mSAP / SAP / IC Substrate / ABF / BT / CCL / RCC / SLP / Any-layer HDI / Build-up / Via /盲孔（blind via）/埋孔（buried via）／叠孔（stacked via）
+   - 规格参数：层数（layer count）/板厚（thickness）/线宽线距（L/S，line width/space）/铜厚（copper thickness）/厚径比（aspect ratio）/阻抗（impedance）/Dk / Df /损耗（loss）/插损（insertion loss）/回损（return loss）
+   - 材料：覆铜板（CCL）/铜箔（copper foil）/玻纤布（glass fabric）/树脂（resin）/油墨（ink）/干膜（dry film）/半固化片（prepreg）/填料（filler）/氢氧化铝/二氧化硅
+   - 工艺与设备：钻孔（drilling）/激光钻孔（laser drilling）/曝光（exposure）/LDI（激光直接成像）/蚀刻（etching）/电镀（plating）/沉铜/PTH/表面处理（surface finish）/ENIG / OSP /沉金 /喷锡（HASL）/阻焊（solder mask）/字符（silkscreen）/AOI / AXI /飞针测试 / 测试架
+   - 制造与服务：打样（prototype）/小批量（low-volume）/批量（mass production）/交期（lead time）/MOQ / BOM / DFM / Gerber / IPC 标准（IPC-6012 / IPC-A-600 / IPC-1783 等）
+   - 经营与统计：book-to-bill（B2B，订单出货比）/稼动率（utilization）/产能利用率 / Capex / ASP /毛利（gross margin）/稼动 / 认证（qualification）/审厂（audit）
+
+2. **中文为主、首次可双标**的常见词：
+   - 印制电路板（PCB）/ 电路板 / 线路板
+   - 载板：IC 载板 / IC Substrate / 类载板（SLP，Like Substrate）/ 封装基板
+   - 高多层板（high-layer-count board）/ HDI 板
+   - 埋容埋阻（embedded capacitance/resistance）
+   - 扩产（capacity expansion）/ 技改（technical upgrade）/ 爬坡（ramp-up）/ 达产（full production）
+   - 涨价（price increase）/ 涨价函（price increase letter）/ 交期（delivery lead time）
+
+3. **公司名按官方写法**：中国大陆与台湾公司用中文名（鹏鼎控股、东山精密、深南电路、兴森科技、生益科技、沪电股份、景旺电子、胜宏科技、崇达技术、奥士康、世运电路、依顿电子、博敏电子、金像电、健鼎、臻鼎、欣兴电子、嘉立创、华秋电路、大族数控、芯碁微装）；海外公司保留英文（TTM Technologies、AT&S、Ibiden、Meiko、CMK、Unimicron、NCAB Group、Rogers、Isola、DuPont、Taiyo Ink、Toyo Ink、KLA、Orbotech、Via Mechanics、PCEA）。
+
+4. **数字与单位保留原文**：层数（20 层 / 40 层）、面积（平方米）、金额（亿元 / 亿美元）、产能（万平方米/月）、比例（%）、交期（周 / 月）。不要把"32 层高多层板"译成"三十二层"，不要把"12 亿元"改写成"逾十亿元"。

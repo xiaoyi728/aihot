@@ -8,7 +8,9 @@
 
 ## 内容类型
 
-`itemType` 必须七选一：
+`itemType` 必须十二选一（AI 侧 7 类，PCB 侧 5 类）：
+
+**AI 侧：**
 
 - `model_release`：新模型或大版本更新
 - `product_launch`：新产品、工具或重大功能更新
@@ -18,9 +20,17 @@
 - `opinion_analysis`：观点、行业判断、复盘或长访谈
 - `tutorial_explainer`：教程、科普、解读或评测
 
-优先级：发了模型选 model_release；发了工具选 product_launch；发了 Prompt 或方法选 tool_or_prompt；论文优先 research_paper；评测选 tutorial_explainer。
+**PCB 侧：**
 
-输出前检查 `itemType` 与第一个分类标签是否自洽：`model_release` 对应“模型发布”，`product_launch` 对应“产品更新”，`research_paper` 对应“论文/研究”，`industry_event` 对应“行业动态”或“政策/监管”，`opinion_analysis` 对应“大佬观点”或“现象/趋势”，`tutorial_explainer` 对应“教程/实践”或“评测/基准”。如果二者冲突，按当前材料的核心事件修正后再输出。
+- `capacity_investment`：产能与投资（新厂、扩产、技改、设备采购、关停搬迁）
+- `process_tech`：技术与工艺进展（HDI、类载板、IC 载板与 ABF、高多层板、软板 FPC、埋容埋阻、新材料新工艺、检测方法）
+- `order_finance`：经营与订单（财报与业绩预告、接单、大客户、涨价降价、并购、募资）
+- `supply_equipment`：上游与设备（覆铜板、铜箔、树脂、油墨、干膜、钻针等材料，钻孔、曝光、蚀刻、电镀、检测等设备的发布、供需与价格）
+- `standard_data`：标准与统计数据（IPC、CPCA 标准发布、book-to-bill、市场预测）
+
+优先级：发了模型选 model_release；发了工具选 product_launch；发了 Prompt 或方法选 tool_or_prompt；论文优先 research_paper；评测选 tutorial_explainer。PCB 侧：新产能或扩产选 capacity_investment；工艺与规格突破选 process_tech；业绩、订单、价格、并购选 order_finance；材料与设备的发布、供需、价格选 supply_equipment；标准与统计数据选 standard_data。
+
+输出前检查 `itemType` 与第一个分类标签是否自洽：`model_release` 对应“模型发布”，`product_launch` 对应“产品更新”，`research_paper` 对应“论文/研究”，`industry_event` 对应“AI行业动态”或“政策/监管”，`opinion_analysis` 对应“大佬观点”或“现象/趋势”，`tutorial_explainer` 对应“教程/实践”或“评测/基准”；PCB 侧 `capacity_investment` 对应“产能/扩产”，`process_tech` 对应“技术突破”，`order_finance` 对应“订单/财报”，`supply_equipment` 对应“上游/设备”，`standard_data` 对应“标准/统计”。如果二者冲突，按当前材料的核心事件修正后再输出。
 
 ## 作者角色
 
@@ -32,14 +42,14 @@
 
 ## 标签
 
-`tags` 输出 1–6 个字符串。第一个必须从以下分类标签中选一个：模型发布、产品更新、开源/仓库、论文/研究、教程/实践、大佬观点、评测/基准、安全/对齐、现象/趋势、行业动态、政策/监管、非AI/通用工具、其他。
+`tags` 输出 1–6 个字符串。第一个必须从以下分类标签中选一个：产品更新、模型发布、论文/研究、开源/仓库、教程/实践、现象/趋势、大佬观点、评测/基准、安全/对齐、AI行业动态、政策/监管、产能/扩产、技术突破、订单/财报、上游/设备、标准/统计、PCB行业动态、非AI/通用工具、其他。
 
 其后可选 0–5 个适用标签，并且只能来自以下两个白名单：
 
-- 主题：Agent、编码、推理、多模态、语音、视频、图像生成、RAG、端侧、数据/训练、搜索、部署/工程、开源生态、具身智能、MCP/工具调用
-- 实体：OpenAI、Anthropic、DeepSeek、DeepMind、Google、Meta、Microsoft、xAI、Hugging Face、GitHub、arXiv
+- 主题：Agent、编码、推理、多模态、语音、视频、图像生成、RAG、端侧、数据/训练、搜索、部署/工程、开源生态、具身智能、MCP/工具调用、算力/芯片、高多层板、HDI、类载板、IC载板、ABF、软板/FPC、埋容埋阻、覆铜板、铜箔、树脂/油墨、钻孔/曝光、电镀/蚀刻、检测/AOI、服务器/交换机、汽车电子、消费电子、通信/基站、卫星/航天、医疗电子
+- 实体：OpenAI、Anthropic、DeepSeek、DeepMind、Google、Meta、Microsoft、xAI、Hugging Face、GitHub、arXiv、鹏鼎控股、东山精密、深南电路、兴森科技、生益科技、沪电股份、景旺电子、胜宏科技、崇达技术、奥士康、世运电路、依顿电子、博敏电子、金像电、健鼎、臻鼎、欣兴电子、TTM、AT&S、Ibiden、Meiko、CMK、Unimicron、NCAB、IPC、CPCA
 
-正文中即使明确出现了 NVIDIA、Apple、阿里等其他实体，也不要把它们放进 `tags`。不要创造白名单之外的标签。没有适用的主题或实体时，只返回第一个分类标签；例如学校限制 AI 使用的监管新闻，不需要强行归到“编码”或“推理”。
+正文中即使明确出现了白名单之外的其他实体，也不要把它们放进 `tags`。不要创造白名单之外的标签。没有适用的主题或实体时，只返回第一个分类标签；例如学校限制 AI 使用的监管新闻，不需要强行归到“编码”或“推理”；某 PCB 厂例行发布月度营收，不需要强行归到“高多层板”。
 
 ## 候选阅读价值
 

@@ -1,6 +1,8 @@
 .env
 .env.*
 !.env.example
+# 本机的真实配置（含模型 Key），不推送；.env.example 只作模板
+.env.local
 node_modules/
 dist/
 .cache/
