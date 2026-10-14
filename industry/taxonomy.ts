@@ -25,7 +25,7 @@ export const CATEGORIES = [
   { key: "pcb-business", label: "PCB 经营", feedLabel: "PCB 经营与订单", section: "PCB 经营与订单", guide: "PCB 企业的经营动作：财报与业绩预告、接单与在手订单、大客户与终端应用（服务器、汽车、手机、卫星）、涨价与降价、并购重组、投资与合资、募资与减持。" },
   { key: "pcb-supply", label: "PCB 上游", feedLabel: "PCB 上游与设备", section: "PCB 上游与设备", guide: "覆铜板、铜箔、树脂、油墨、干膜、钻针等材料，以及钻孔、曝光、蚀刻、电镀、检测等专用设备的发布、供需、价格与厂商动作。标准与行业统计（IPC、CPCA、book-to-bill）也归这里。" },
   // ── 两个行业共有 ──────────────────────────────────────────────────────────────────────
-  { key: "cross-demand", label: "AI×PCB", feedLabel: "AI 与 PCB 交叉", section: "AI 与 PCB 交叉", guide: "同时以 AI 算力硬件需求和 PCB 供给两侧为核心的事件：AI 服务器与交换机带动的高多层板、HDI 与载板需求，PCB 厂拿到算力大客户订单，材料设备厂因 AI 需求调整产能。只要报道的主线是两侧的因果关系，就归这里，不按它提到哪家公司归类。", commentary: false },
+  { key: "cross-demand", label: "AI×PCB", feedLabel: "AI 与 PCB 交叉", section: "AI 与 PCB 交叉", guide: "同时以 AI 算力硬件需求和 PCB 供给两侧为核心的事件：AI 服务器与交换机带动的高多层板、HDI 与载板需求，PCB 厂拿到算力大客户订单，材料设备厂因 AI 需求调整产能。只要报道的主线是两侧的因果关系，就归这里，不按它提到哪家公司归类。" },
   { key: "tip", label: "教程", section: "技巧与观点", guide: "读者可以照着使用的方法、提示词、工具用法、PCB 设计与制造工程实践复盘、技术讲解。重点是可复用的做法；单纯发布工具或产品归对应类别，只有态度和预测而无做法归观点。", commentary: true },
   { key: "opinion", label: "观点", section: "技巧与观点", guide: "重点是作者的解释、判断、主张、预测、评论或访谈观点。讨论市场不自动归行业，作者是名人不自动归观点。", commentary: true },
 ] as const satisfies ReadonlyArray<{ key: string; label: string; feedLabel?: string; section: string; guide: string; commentary?: true }>;
@@ -128,7 +128,6 @@ export const ENTITIES: Record<string, { name: string; displayTag: string | null;
   openrouter: { name: "OpenRouter", displayTag: null, aliases: ["OpenRouter"] },
   amazon: { name: "Amazon / AWS", displayTag: null, aliases: ["Amazon", "AWS", "亚马逊"], otherNames: ["AWS Machine Learning"] },
   github: { name: "GitHub", displayTag: "GitHub", aliases: ["GitHub"], otherNames: ["GitHub Blog"] },
-  amd: { name: "AMD", displayTag: null, aliases: ["AMD", "Advanced Micro Devices"] },
   baidu: { name: "百度文心", displayTag: null, aliases: ["百度", "Baidu", "文心", "ERNIE Bot"], otherNames: ["文心一言"] },
   tencent: { name: "腾讯混元", displayTag: null, aliases: ["腾讯", "Tencent", "混元", "Hunyuan"], otherNames: ["腾讯云"] },
   bytedance: { name: "字节跳动", displayTag: null, aliases: ["字节跳动", "ByteDance", "豆包", "Doubao"], otherNames: ["火山引擎", "Seed"] },
