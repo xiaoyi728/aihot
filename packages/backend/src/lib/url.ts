@@ -138,7 +138,8 @@ export function isBlockedAddress(address: string): boolean {
 }
 
 function blockedHostname(host: string): boolean {
-  return host === "localhost" || host.endsWith(".localhost") || host.endsWith(".internal") || host === "metadata.google.internal";
+  const name = host.replace(/\.$/, "");
+  return name === "localhost" || name.endsWith(".localhost") || name.endsWith(".internal") || name === "metadata.google.internal";
 }
 
 /**

@@ -1,6 +1,66 @@
 export type SelectionGoldDecision = "select" | "reject" | "either";
 export type SelectionDecision = "select" | "reject";
 
+export interface SelectionGoldRow {
+  caseId: string;
+  material: { title: string; originalTitle: string | null; publishedAt: string | null; sourceName: string; bodyZh: string | null; bodyOriginal: string | null };
+  sourceFacts: { sourceKind: string; sourceTier?: string; firstParty?: boolean; language?: string | null };
+  samplingContext?: { benchmarkSplit?: string; samplingStratum?: string };
+  gold: { decision: SelectionGoldDecision };
+}
+
+/** Validate the entire gold set before filtering or sending any model requests. */
+export function parseSelectionGoldJsonl(text: string): SelectionGoldRow[] {
+  const rows: SelectionGoldRow[] = [];
+  const ids = new Set<string>();
+  for (const [index, raw] of text.split(/\r?\n/).entries()) {
+    const line = index + 1;
+    if (!raw.trim() || raw.trim().startsWith("//")) continue;
+    const fail = (message: string): never => { throw new Error(`line ${line}: ${message}`); };
+    const record = (value: unknown, field: string): Record<string, unknown> => {
+      if (!value || typeof value !== "object" || Array.isArray(value)) return fail(`${field} must be an object`);
+      return value as Record<string, unknown>;
+    };
+    const string = (obj: Record<string, unknown>, key: string): string => {
+      if (typeof obj[key] !== "string" || !obj[key].trim()) return fail(`${key} must be a non-empty string`);
+      return obj[key];
+    };
+    const nullable = (obj: Record<string, unknown>, key: string): string | null => {
+      if (obj[key] === undefined || obj[key] === null) return null;
+      if (typeof obj[key] !== "string") return fail(`${key} must be a string or null`);
+      return obj[key];
+    };
+    let value: unknown;
+    try { value = JSON.parse(raw); } catch { fail("invalid JSON"); }
+    const obj = record(value, "row");
+    const caseId = string(obj, "caseId");
+    if (ids.has(caseId)) fail(`duplicate caseId ${caseId}`);
+    ids.add(caseId);
+    const material = record(obj.material, "material");
+    const facts = record(obj.sourceFacts, "sourceFacts");
+    const gold = record(obj.gold, "gold");
+    if (!["select", "reject", "either"].includes(gold.decision as string)) fail("gold.decision must be select, reject or either");
+    const publishedAt = nullable(material, "publishedAt");
+    if (publishedAt && Number.isNaN(new Date(publishedAt).getTime())) fail("publishedAt is not a valid date");
+    if (facts.firstParty !== undefined && typeof facts.firstParty !== "boolean") fail("firstParty must be a boolean");
+    const sampling = obj.samplingContext === undefined ? undefined : record(obj.samplingContext, "samplingContext");
+    rows.push({
+      caseId,
+      material: { title: string(material, "title"), sourceName: string(material, "sourceName"), originalTitle: nullable(material, "originalTitle"), publishedAt, bodyZh: nullable(material, "bodyZh"), bodyOriginal: nullable(material, "bodyOriginal") },
+      sourceFacts: { sourceKind: string(facts, "sourceKind"), sourceTier: nullable(facts, "sourceTier") ?? undefined, firstParty: facts.firstParty as boolean | undefined, language: nullable(facts, "language") },
+      ...(sampling ? { samplingContext: { benchmarkSplit: nullable(sampling, "benchmarkSplit") ?? undefined, samplingStratum: nullable(sampling, "samplingStratum") ?? undefined } } : {}),
+      gold: { decision: gold.decision as SelectionGoldDecision },
+    });
+  }
+  return rows;
+}
+
+export function selectionGoldPool(rows: SelectionGoldRow[], split: string): SelectionGoldRow[] {
+  const pool = split === "all" ? rows : rows.filter(r => r.samplingContext?.benchmarkSplit === split);
+  if (!pool.length) throw new Error(`no gold cases for split ${split}`);
+  return pool;
+}
+
 export interface SelectionMetricCase {
   gold: SelectionGoldDecision;
   decision: SelectionDecision | null;

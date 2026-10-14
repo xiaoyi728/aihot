@@ -49,6 +49,26 @@ test("benchmark literals are refused without a local-debug override", async () =
   assert.equal((await assertPublicUrl("http://198.18.0.1/", true)).hostname, "198.18.0.1");
 });
 
+test("blocked DNS names keep their boundary with a trailing root dot", async () => {
+  const names = ["localhost", "child.localhost", "metadata.google.internal", "anything.internal"];
+  for (const name of names) {
+    await assert.rejects(assertPublicUrl(`http://${name}./`, false, async () => ["93.184.216.34"]), /Blocked host/, name);
+  }
+  assert.equal((await assertPublicUrl("https://example.org./", false, async () => ["93.184.216.34"])).hostname, "example.org.");
+  let lookups = 0;
+  mock.method(dns, "lookup", async () => { lookups++; return [{ address: "93.184.216.34", family: 4 }]; });
+  syncBuiltinESMExports();
+  try {
+    for (const name of names) for (const all of [false, true]) {
+      const error = await new Promise<NodeJS.ErrnoException | null>(resolve => guardedLookup(`${name.toUpperCase()}.`, { all }, err => resolve(err)));
+      assert.equal(error?.code, "EBLOCKED", `${name}, all=${all}`);
+    }
+    assert.equal(lookups, 0, "blocked names are rejected before resolving an address");
+  } finally {
+    mock.restoreAll(); syncBuiltinESMExports();
+  }
+});
+
 test("the connection guard refuses private, mixed, reserved and empty DNS answers, including a changed answer", async () => {
   const agent = new Agent({ connect: { lookup: guardedLookup as never } });
   const before = hits;

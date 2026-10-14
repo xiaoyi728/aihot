@@ -32,6 +32,19 @@ export async function importSelectBenchRun(report: unknown, label: string, actor
   const models = r.models ?? {};
   const names = Object.keys(models).filter((m) => models[m]?.summary);
   if (!names.length) throw new Error("report has no model summaries");
+  // Reject invalid evidence before writing a run; the same case may appear once per model.
+  for (const m of names) {
+    const cases = models[m]!.cases;
+    if (cases === undefined) continue;
+    if (!Array.isArray(cases)) throw new Error(`${m}: cases must be an array`);
+    const ids = new Set<string>();
+    for (const c of cases) {
+      if (!c || typeof c.caseId !== "string" || !c.caseId.trim()) throw new Error(`${m}: caseId must be a non-empty string`);
+      if (ids.has(c.caseId)) throw new Error(`${m}: duplicate caseId ${c.caseId}`);
+      ids.add(c.caseId);
+      if (!["select", "reject", "either"].includes(c.gold)) throw new Error(`${m}: ${c.caseId}: invalid gold decision`);
+    }
+  }
   const meta = r.meta ?? {};
   const id = `sb-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomBytes(3).toString("hex")}`;
   const summary = Object.fromEntries(names.map((m) => [m, { ...models[m]!.summary, sweep: models[m]!.sweep ?? [] }]));
