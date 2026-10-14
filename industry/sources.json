@@ -757,6 +757,26 @@
       "site_fulltext": false,
       "syndicate_fulltext": false,
       "_note": "IC 载板与样板快板厂商，载板国产化进展的一手来源。"
+    },
+    {
+      "id": "rss-juya-ai-daily",
+      "name": "橘鸦AI日报",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://daily.juya.uk/rss.xml"
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "tags": [
+        "媒体",
+        "中文",
+        "聚合"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": false,
+      "_note": "已停用：这一份订阅由 modules/juya-daily 接管（同样的地址，它按期拆开推进站里）。这里保留这条记录，是为了让新装的环境里也写着它为什么不再采集：一条 item 就是一整期，多事件打包，在评分里进不了精选；拆开之后每一条都有自己的原文链接。停用前抓到的 10 期仍在库里（都是首次导入的回灌，不进“今天”也不推送）。"
     }
   ]
 }

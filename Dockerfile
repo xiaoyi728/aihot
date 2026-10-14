@@ -21,6 +21,7 @@ COPY apps/worker/package.json apps/worker/
 COPY packages/backend/package.json packages/backend/
 COPY packages/contracts/package.json packages/contracts/
 COPY industry/package.json industry/
+COPY modules/juya-daily/package.json modules/juya-daily/
 COPY site/package.json site/
 RUN npm ci --no-audit --no-fund ${NPM_REGISTRY:+--registry=$NPM_REGISTRY}
 COPY . .

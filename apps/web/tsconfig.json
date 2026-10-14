@@ -5,6 +5,7 @@
     ".react-router/types/**/*",
     "../../modules/*/web.tsx",
     "../../modules/*/web/**/*",
+    "../../modules/*/*.tsx",
     "../../site/**/*.tsx"
   ],
   "compilerOptions": {

@@ -1,0 +1,16 @@
+{
+  "name": "@aihot/juya-daily",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./module.ts",
+    "./server": "./server.ts",
+    "./web": "./web.tsx"
+  },
+  "dependencies": {
+    "@aihot/backend": "*",
+    "@aihot/site": "*",
+    "cheerio": "1.2.0",
+    "fast-xml-parser": "5.11.1"
+  }
+}
