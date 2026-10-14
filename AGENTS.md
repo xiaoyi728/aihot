@@ -14,6 +14,7 @@
 
 - Node.js 24 直接运行 TypeScript，后端没有构建步骤。npm workspaces：`apps/*`、`packages/*`、`industry`、`site`、`modules/*`。
 - 本机运行和 Docker 见 `docs/deploy.md`。
+- **git 推送走代理**：本机直连 github.com 不稳定，而 DSH 的 rule-proxy 只对 Agent 的工具有效、不覆盖 shell 里的 git。推送用 `scripts/git-push.sh`（`AIHOT_GIT_PROXY` 可换代理地址）：它先探测代理，不可用就自动直连，不要在超时上反复重试。同理，`gh`、`curl` 访问 github.com 卡住时，用 `http_proxy=... https_proxy=...` 包一层。
 - 改完至少跑：
   ```bash
   npm run typecheck
