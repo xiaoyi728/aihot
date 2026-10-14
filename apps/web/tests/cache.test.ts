@@ -93,7 +93,10 @@ test("HTML and navigation share freshness; cookies do not personalize public res
   assert.match(plain.headers.get("Cache-Control")!, /^public,/);
   assert.match(plain.headers.get("X-Accel-Expires")!, /^@\d+$/);
   assert.equal(signedIn.headers.get("Set-Cookie"), null);
-  assert.equal(await signedIn.text(), await plain.text());
+  // The page's own freshness deadline is a render-time timestamp, so two renders of the same page
+  // differ by a second when they straddle one. Compare the bodies with that one number taken out.
+  const bodies = [await plain.text(), await signedIn.text()].map((body) => body.replace(/"expiresAt",\d+/g, '"expiresAt",0'));
+  assert.equal(bodies[1], bodies[0]);
   assert.ok(apiCookies.every((cookie) => !cookie));
 });
 
