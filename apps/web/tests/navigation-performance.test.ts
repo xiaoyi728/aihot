@@ -101,7 +101,7 @@ test('SSR list and visited query variants return offline without another read',a
     await page.getByRole('link',{name:'AI 模型',exact:true}).click();
     await expect(page.getByRole('link',{name:'分类 ai-models',exact:true})).toBeVisible();
     await page.getByRole('button',{name:/^筛选/}).click();
-    await page.getByRole('link',{name:'产品',exact:true}).click();
+    await page.getByRole('link',{name:'AI 产品',exact:true}).click();
     await expect(page.getByRole('link',{name:'分类 ai-products',exact:true})).toBeVisible();
     await context.setOffline(true);
     await page.goBack();
@@ -163,9 +163,9 @@ test('intent on a selected link preserves visited data and the next revisit star
     await expect(page.getByRole('link',{name:'分类 ai-models',exact:true})).toBeVisible();
     await page.getByRole('link',{name:'AI 模型',exact:true}).focus();
     await page.waitForTimeout(150);
-    await page.getByRole('link',{name:'产品',exact:true}).click();
+    await page.getByRole('link',{name:'AI 产品',exact:true}).click();
     await expect(page.getByRole('link',{name:'分类 ai-products',exact:true})).toBeVisible();
-    await page.getByRole('link',{name:'产品',exact:true}).focus();
+    await page.getByRole('link',{name:'AI 产品',exact:true}).focus();
     await page.waitForTimeout(150);
     const before=requests.length;
     await page.getByRole('link',{name:'AI 模型',exact:true}).click();
