@@ -35,6 +35,8 @@ test("stable external IDs revise the first material after URL changes without me
   }
   assert.equal((await collectSource(ids[0]!, { force: true })).created, 1);
   const [first] = await sql<{ id: string; identity_key: string }[]>`SELECT id, identity_key FROM articles WHERE source_id = ${ids[0]!}`;
+  // Found a minute ago: the legacy duplicate found next stays the later discovery even when the VM's clock steps back.
+  await sql`UPDATE articles SET discovered_at = discovered_at - interval '1 minute' WHERE id = ${first!.id}`;
   await upsertMaterial({ sourceId: ids[0]!, url: `https://example.org/${ids[0]}/legacy-duplicate`, title: "Legacy duplicate", publishedAt: new Date(published), raw: { externalId: "stable-entry" }, via: "import" });
   version = 2;
   const run = await collectSource(ids[0]!, { force: true });

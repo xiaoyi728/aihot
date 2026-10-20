@@ -189,7 +189,7 @@ export function SearchOverlay() {
               <h2 className="text-[13px] font-semibold text-ink-3">按主题找</h2>
               <div className="mt-2.5 flex flex-wrap gap-2">
                 {companies.map((t) => (
-                  <Link viewTransition key={t.slug} to={`/topics/${t.slug}`} className={`${chip} bg-bg-sunk text-ink-2 ring-1 ring-inset ring-line-soft active:bg-bg-muted dark:bg-bg-muted/60`}>
+                  <Link viewTransition key={t.slug} to={`/topics/${t.slug}`} className={`${chip} bg-well text-ink-2 ring-1 ring-inset ring-line-soft active:bg-bg-muted`}>
                     <span className="truncate">{t.name}</span>
                   </Link>
                 ))}

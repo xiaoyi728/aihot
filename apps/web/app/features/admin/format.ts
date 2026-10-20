@@ -1,10 +1,6 @@
 // Admin display helpers: Beijing wall-clock times, relative ages, compact numbers.
 import { beijingDate, beijingTime } from "@aihot/contracts/time";
 
-const numberFormats = new Map<number, Intl.NumberFormat>();
-const moneyFormat = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
-const smallMoneyFormat = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 3, minimumFractionDigits: 2 });
-
 export function bj(iso: string | Date | null | undefined, withYear = false): string {
   if (!iso || Number.isNaN(new Date(iso).getTime())) return "—";
   const date = beijingDate(iso);
@@ -29,19 +25,14 @@ export function num(n: number | string | null | undefined, digits = 0): string {
   if (n === null || n === undefined || n === "") return "—";
   const v = Number(n);
   if (!Number.isFinite(v)) return "—";
-  let format = numberFormats.get(digits);
-  if (!format) {
-    format = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
-    numberFormats.set(digits, format);
-  }
-  return format.format(v);
+  return v.toLocaleString("zh-CN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
 }
 
 export function money(n: number | string | null | undefined, currency = "CNY"): string {
   if (n === null || n === undefined) return "—";
   const v = Number(n);
   const sign = currency === "USD" ? "$" : "¥";
-  return `${sign}${(v < 10 ? smallMoneyFormat : moneyFormat).format(v)}`;
+  return `${sign}${v.toLocaleString("zh-CN", { maximumFractionDigits: v < 10 ? 3 : 2, minimumFractionDigits: 2 })}`;
 }
 
 export function duration(from: string | null, to: string | null): string {

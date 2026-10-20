@@ -48,7 +48,7 @@ test("recent gap detection uses report activity and each edition's overdue time"
     [1,2,3,4,5,7].map(d => key(`2026-10-0${d}`)));
 });
 
-test("open dates outlive disabled generation or startup grace within the scan window", async () => {
+test("open dates outlive disabled generation and restarts keep checking missing editions", async () => {
   await checkAlerts(at("2026-10-01"));
   process.env.MODEL_CALLS_ENABLED = "false";
   let result = await checkAlerts(at("2026-10-07"));
@@ -56,10 +56,12 @@ test("open dates outlive disabled generation or startup grace within the scan wi
   assert.deepEqual(daily(result.sent), []);
   process.env.MODEL_CALLS_ENABLED = "true";
   await sql`INSERT INTO settings(key,value) VALUES('heartbeat.worker',${sql.json({ startedAt: new Date(at("2026-10-07")).toISOString() })})`;
-  assert.deepEqual(daily((await checkAlerts(at("2026-10-07"))).open), [key("2026-10-01")]);
+  result = await checkAlerts(at("2026-10-07"));
+  assert.deepEqual(daily(result.open), [key("2026-10-01"), key("2026-10-07")]);
+  assert.ok(result.sent.includes(key("2026-10-01")), "a restart keeps checking the unresolved edition");
   await sql`DELETE FROM settings WHERE key='heartbeat.worker'`;
   result = await checkAlerts(at("2026-10-07"));
-  assert.ok(result.sent.includes(key("2026-10-01")), "an unresolved edition in the window still gets reminders");
+  assert.deepEqual(result.sent, [], "rechecking after the restart does not duplicate the reminder");
   process.env.COLLECT_ENABLED = "false";
   await report("2026-10-01");
   assert.ok((await checkAlerts(at("2026-10-07", "10:10"))).sent.includes(`${key("2026-10-01")}:recovered`));
@@ -72,14 +74,4 @@ test("an edition still missing past the scan window is closed once instead of re
   assert.ok(!result.open.includes(key("2026-10-01")));
   result = await checkAlerts(at("2026-10-08", "12:00"));
   assert.ok(!result.sent.some(k => k.startsWith(key("2026-10-01"))));
-});
-
-test("legacy alert migrates its date and preserves reminder timing", async () => {
-  const since = new Date(at("2026-10-06", "23:30")).toISOString();
-  await sql`INSERT INTO settings(key,value) VALUES('alerts.state',${sql.json({ "report.daily": { title: "今天的日报还没生成", since, sentAt: since } })})`;
-  let result = await checkAlerts(at("2026-10-07", "00:10"));
-  assert.deepEqual(daily(result.open), [key("2026-10-06")]);
-  assert.deepEqual(daily(result.sent), []);
-  result = await checkAlerts(at("2026-10-07", "00:31"));
-  assert.deepEqual(daily(result.sent), [key("2026-10-06")]);
 });

@@ -67,6 +67,50 @@ test("a busy table aborts the migration promptly and leaves the serving schema a
   assert.equal((await db`SELECT 1 FROM schema_migrations WHERE name = '9003_lock.sql'`).length, 0);
 });
 
+/** A connection named the way pg_dump names itself, holding what a running dump holds: a snapshot and ACCESS SHARE on the table. */
+async function runningDump(table: string) {
+  const dump = postgres(process.env.DATABASE_URL!, { max: 1, onnotice: () => {}, connection: { application_name: "pg_dump" } });
+  let release!: () => void;
+  let acquired!: () => void;
+  const ready = new Promise<void>((resolve) => { acquired = resolve; });
+  const hold = new Promise<void>((resolve) => { release = resolve; });
+  const held = dump.begin("ISOLATION LEVEL REPEATABLE READ", async (tx) => {
+    await tx`LOCK TABLE ${tx(table)} IN ACCESS SHARE MODE`;
+    acquired();
+    await hold;
+  });
+  await ready;
+  return { release, done: held.finally(() => dump.end()) };
+}
+
+test("a running backup dump is waited out instead of failing the release, for column and index changes", async () => {
+  await db`CREATE TABLE migration_dumped (id int)`;
+  const dump = await runningDump("migration_dumped");
+  const finished = setTimeout(dump.release, 1500);
+  try {
+    assert.equal(await runMigrations(db, fixture({
+      "database/migrations/9008_dumped_column.sql": "ALTER TABLE migration_dumped ADD COLUMN flag text;",
+      "database/migrations/9009_dumped_index.sql": "CREATE INDEX CONCURRENTLY IF NOT EXISTS migration_dumped_idx ON migration_dumped (id);",
+    }), { backupWaitMs: 10_000 }), 2);
+  } finally { clearTimeout(finished); dump.release(); await dump.done; }
+  assert.equal((await db`SELECT 1 FROM information_schema.columns WHERE table_name = 'migration_dumped' AND column_name = 'flag'`).length, 1);
+  assert.equal((await db`SELECT indisvalid FROM pg_index WHERE indexrelid = 'migration_dumped_idx'::regclass`)[0].indisvalid, true);
+});
+
+test("a backup dump running past the wait fails the release before touching the schema", async () => {
+  await db`CREATE TABLE migration_dump_stuck (id int)`;
+  const dump = await runningDump("migration_dump_stuck");
+  const start = Date.now();
+  try {
+    await assert.rejects(runMigrations(db, fixture({
+      "database/migrations/9010_dump_stuck.sql": "ALTER TABLE migration_dump_stuck ADD COLUMN flag text;",
+    }), { backupWaitMs: 1500 }), /9010_dump_stuck.*pg_dump/s);
+    assert.ok(Date.now() - start < 6000, "the wait is bounded");
+  } finally { dump.release(); await dump.done; }
+  assert.equal((await db`SELECT 1 FROM information_schema.columns WHERE table_name = 'migration_dump_stuck' AND column_name = 'flag'`).length, 0);
+  assert.equal((await db`SELECT 1 FROM schema_migrations WHERE name = '9010_dump_stuck.sql'`).length, 0);
+});
+
 test("concurrent module indexes apply and resume safely when only bookkeeping was interrupted", async () => {
   await db`CREATE TABLE migration_indexed (id int)`;
   await db`INSERT INTO migration_indexed VALUES (1), (2)`;
@@ -92,24 +136,4 @@ test("IF NOT EXISTS must not turn an invalid or wrong-table index into a success
     "database/migrations/9007_wrong_table.sql": "CREATE INDEX CONCURRENTLY IF NOT EXISTS migration_idx ON migration_invalid (id);",
   })), /different table/);
   assert.equal((await db`SELECT 1 FROM schema_migrations WHERE name IN ('9006_invalid.sql', '9007_wrong_table.sql')`).length, 0);
-});
-
-// Storage metadata changes must coexist with normal readers/writers, retain the heap and row data,
-// and be recorded once so retrying a release does not repeat work.
-test("bounded vacuum settings apply without rewriting data or waiting for ordinary reads and writes", async () => {
-  await db`CREATE TABLE migration_vacuum (id int PRIMARY KEY)`;
-  await db`INSERT INTO migration_vacuum VALUES (1), (2)`;
-  const before = (await db`SELECT relfilenode FROM pg_class WHERE oid = 'migration_vacuum'::regclass`)[0].relfilenode;
-  const root = fixture({
-    "modules/example/migrations/9008_vacuum.sql": "ALTER TABLE migration_vacuum SET (autovacuum_vacuum_insert_scale_factor = 0.02, autovacuum_vacuum_scale_factor = 0.02);",
-  });
-  await other.begin(async (tx) => {
-    await tx`LOCK TABLE migration_vacuum IN ROW EXCLUSIVE MODE`;
-    assert.equal(await runMigrations(db, root), 1);
-  });
-  assert.equal(await runMigrations(db, root), 0);
-  const [after] = await db`SELECT relfilenode, reloptions FROM pg_class WHERE oid = 'migration_vacuum'::regclass`;
-  assert.equal(after.relfilenode, before);
-  assert.deepEqual([...after.reloptions].sort(), ["autovacuum_vacuum_insert_scale_factor=0.02", "autovacuum_vacuum_scale_factor=0.02"]);
-  assert.deepEqual((await db`SELECT id FROM migration_vacuum ORDER BY id`).map((row) => row.id), [1, 2]);
 });

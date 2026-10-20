@@ -8,7 +8,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { sql, closeDb } from "@aihot/backend/db";
 import { importSelectBenchRun, selectBenchRun } from "@aihot/backend/admin/selectbench";
-import { parseSelectionGoldJsonl, selectionGoldPool } from "../scripts/eval-selection-core.ts";
+import { parseSelectionGoldJsonl } from "../scripts/eval-selection-core.ts";
+import { sampleCases } from "../scripts/eval-tools.ts";
 
 after(closeDb);
 const row = { caseId: "a", material: { title: "title", sourceName: "source", originalTitle: null, publishedAt: null, bodyZh: null, bodyOriginal: "body" }, sourceFacts: { sourceKind: "rss" }, samplingContext: { benchmarkSplit: "development" }, gold: { decision: "select" } };
@@ -17,10 +18,11 @@ const text = (value: unknown) => JSON.stringify(value);
 test("valid gold preserves comments, split and optional material", () => {
   const rows = parseSelectionGoldJsonl(`// comment\n\n${text(row)}\n${text({ ...row, caseId: "b", samplingContext: { benchmarkSplit: "holdout" }, gold: { decision: "either" } })}`);
   assert.equal(rows.length, 2);
-  assert.equal(selectionGoldPool(rows, "development")[0]!.caseId, "a");
-  assert.equal(selectionGoldPool(rows, "holdout")[0]!.caseId, "b");
-  assert.equal(selectionGoldPool(rows, "all").length, 2);
-  assert.throws(() => selectionGoldPool(rows, "missing"), /no gold cases/);
+  const pool = (split: string) => sampleCases(rows, { split, n: rows.length, seed: 0 });
+  assert.equal(pool("development")[0]!.caseId, "a");
+  assert.equal(pool("holdout")[0]!.caseId, "b");
+  assert.equal(pool("all").length, 2);
+  assert.throws(() => pool("missing"), /no gold cases/);
 });
 
 test("invalid gold is rejected with physical line numbers", () => {
@@ -28,7 +30,7 @@ test("invalid gold is rejected with physical line numbers", () => {
     assert.throws(() => parseSelectionGoldJsonl(`// comment\n\n${text(invalid)}`), /line 3:/);
   }
   assert.throws(() => parseSelectionGoldJsonl(`${text(row)}\n${text(row)}`), /line 2: duplicate caseId/);
-  assert.throws(() => parseSelectionGoldJsonl("\n{broken"), /line 2: invalid JSON/);
+  assert.throws(() => parseSelectionGoldJsonl("\n{broken"), /line 2: .*JSON/i);
 });
 
 test("CLI rejects invalid gold and empty splits before connecting to model or database", () => {

@@ -1,7 +1,7 @@
 // Shared admin building blocks: page frame, cards, stats, badges, tables, buttons, fields and a
 // reason dialog (manual changes always carry a reason for the audit log).
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router";
 import { ago, bj } from "./format";
 
@@ -20,16 +20,21 @@ export function AdminPage({ title, subtitle, actions, children }: { title: React
   );
 }
 
+/** Inside a scrollable card, tables scroll within it under a sticky header. */
+const InScrollCard = createContext(false);
+
 export function Card({ title, right, children, className = "", pad = true, scrollable = false }: { title?: ReactNode; right?: ReactNode; children: ReactNode; className?: string; pad?: boolean; scrollable?: boolean }) {
   return (
-    <section className={`rounded-panel bg-surface ring-1 ring-line ${scrollable ? "flex max-h-[480px] min-h-0 min-w-0 flex-col" : ""} ${className}`}>
+    <section className={`rounded-panel bg-surface ring-1 ring-line ${scrollable ? "flex max-h-120 min-h-0 min-w-0 flex-col" : ""} ${className}`}>
       {(title || right) && (
         <div className={`flex items-center justify-between gap-3 border-b border-line px-4 py-3 ${scrollable ? "shrink-0" : ""}`}>
           <h2 className="text-[14px] font-semibold text-ink">{title}</h2>
           {right && <div className="flex items-center gap-2 text-[12.5px] text-ink-3">{right}</div>}
         </div>
       )}
-      <div className={`${pad ? "p-4" : ""} ${scrollable ? "flex min-h-0 flex-1 flex-col" : ""}`}>{children}</div>
+      <div className={`${pad ? "p-4" : ""} ${scrollable ? "flex min-h-0 flex-1 flex-col" : ""}`}>
+        <InScrollCard.Provider value={scrollable}>{children}</InScrollCard.Provider>
+      </div>
     </section>
   );
 }
@@ -94,7 +99,8 @@ export interface Column<T> {
   align?: "right";
 }
 
-export function DataTable<T>({ rows, columns, rowKey, empty = "暂无数据", onRowClick, dense, scrollable = false }: { rows: T[]; columns: Column<T>[]; rowKey: (r: T) => string | number; empty?: ReactNode; onRowClick?: (r: T) => void; dense?: boolean; scrollable?: boolean }) {
+export function DataTable<T>({ rows, columns, rowKey, empty = "暂无数据", onRowClick, dense }: { rows: T[]; columns: Column<T>[]; rowKey: (r: T) => string | number; empty?: ReactNode; onRowClick?: (r: T) => void; dense?: boolean }) {
+  const scrollable = useContext(InScrollCard);
   if (!rows.length) return <Empty>{empty}</Empty>;
   return (
     <div className={scrollable ? "min-h-0 flex-1 overflow-auto" : "overflow-x-auto"} tabIndex={scrollable ? 0 : undefined}>

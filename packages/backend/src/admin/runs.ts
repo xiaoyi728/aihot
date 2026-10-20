@@ -8,6 +8,7 @@ import { audit } from "../audit.ts";
 import { failureGroupSql, requeueFailed } from "../jobs/content.ts";
 import { groupingOverview, waitingSelectedNews } from "../operations/grouping.ts";
 import { serverModules } from "../modules.ts";
+import { awaitingRelease } from "../providers/receipts.ts";
 
 const STALE_HEARTBEAT_MS = 3 * 60_000;
 
@@ -64,7 +65,7 @@ export async function runsOverview(): Promise<Runs> {
     sql<{ status: string; n: number }[]>`SELECT status, count(*)::int AS n FROM receipts WHERE created_at > now() - interval '7 days' GROUP BY 1 ORDER BY 1`,
     sql<Runs["receipts"]["issues"]>`
       SELECT id, service, model, purpose, subject, status, attempts, left(error, 240) AS error, created_at, updated_at FROM receipts
-      WHERE status = 'unknown' OR (status = 'failed' AND updated_at > now() - interval '3 days') OR (status = 'pending' AND updated_at < now() - interval '15 minutes')
+      WHERE ${awaitingRelease()} OR (status = 'failed' AND updated_at > now() - interval '3 days') OR (status = 'pending' AND updated_at < now() - interval '15 minutes')
       ORDER BY status = 'unknown' DESC, updated_at DESC, id DESC LIMIT 40`,
     sql<Runs["deliveries"]>`
       SELECT id, target_key, subject_kind, subject_id, status, attempts, left(response, 240) AS response, created_at, updated_at FROM deliveries
