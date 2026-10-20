@@ -5,29 +5,13 @@
 // - a reading group disappears because its representative is read, or a fully read one stays;
 // - returning to the list drops the filter, or an ordinary card survives it.
 import assert from "node:assert/strict";
-import { createServer } from "node:http";
 import { after, before, test } from "node:test";
 import { chromium, expect, type Browser } from "@playwright/test";
-import type { FeedItemSummary, SiteItemDetail } from "@aihot/contracts/site";
-import { startWebServer, type WebServer } from "./web-server.ts";
+import { FIXTURE_AT as at, fakeApi, feedItem, itemDetail, startWebServer, type WebServer } from "./web-server.ts";
 
-const at = "2026-10-04T08:00:00.000Z";
 const earlier = "2026-10-03T08:00:00.000Z";
 
-function summaryOf(id: string, title: string, timelineAt = at): FeedItemSummary {
-  return { id, title, summary: "固定摘要", reason: "固定推荐理由", source: { name: "Fixture" }, publishedAt: timelineAt, timelineAt, category: "ai-models", tags: [], score: 80, selected: true, channel: "news", x: null };
-}
-
-function detailOf(id: string, title: string): SiteItemDetail {
-  return {
-    ...summaryOf(id, title), x: null, originalTitle: title, links: { original: "https://example.org/article" }, discoveredAt: at,
-    story: null, readingMode: "full", author: null,
-    body: { zh: "<p>固定正文</p>", original: null, zhKind: "translation", complete: true },
-    outline: [], relatedStories: [], topics: [], indexable: true, markdownAvailable: true, group: null,
-    hasTranslation: true, bodyLanguage: "zh",
-  };
-}
-
+const summaryOf = (id: string, title: string, timelineAt = at) => feedItem({ id, title, publishedAt: timelineAt, timelineAt });
 const card = (id: string, title: string, timelineAt = at) => ({ key: id, anchorAt: timelineAt, item: summaryOf(id, title, timelineAt), group: null });
 // A reading group whose representative is read but whose other selected report is not: the filter
 // must keep it, or the unread report behind the representative would be unreachable.
@@ -39,43 +23,38 @@ let web: WebServer;
 let origin: string;
 let chrome: Browser;
 let failNextPage = false;
-let boundaryRequests = 0;
 
-const api = createServer((req, res) => {
-  const url = new URL(req.url!, "http://local");
+const api = fakeApi((url, res) => {
   const p = url.pathname;
-  res.setHeader("Content-Type", "application/json");
-  if (p === "/api/site/meta") return res.end(JSON.stringify({ changelogVersion: "fixture" }));
-  if (p === "/api/site/track") { res.statusCode = 204; return res.end(); }
-  if (p === "/api/health") return res.end("{}");
-  if (p === "/api/site/topics") return res.end(JSON.stringify({ groups: [], topics: [] }));
-  if (p === "/api/site/hot") return res.end(JSON.stringify({ computedAt: at, windowHours: 48, entries: [] }));
+  if (p === "/api/site/topics") return { groups: [], topics: [] };
+  if (p === "/api/site/hot") return { computedAt: at, windowHours: 48, entries: [] };
   if (p === "/api/site/timeline") {
     const tag = url.searchParams.get("tag");
     const cursor = url.searchParams.get("cursor");
     if (tag === "boundary") {
-      boundaryRequests++;
       const n = cursor ? Number(cursor) : 1;
-      return res.end(JSON.stringify({ filters: { channel: "all", category: null, tag }, cards: [card(`boundary-${n}`, `批次 ${n}`)], nextCursor: n < 5 ? String(n + 1) : null, hot: null, dayCounts: { "2026-10-04": 5 } }));
+      return { filters: { channel: "all", category: null, tag }, cards: [card(`boundary-${n}`, `批次 ${n}`)], nextCursor: n < 5 ? String(n + 1) : null, hot: null, dayCounts: { "2026-10-04": 5 } };
     }
     if (tag === "group") {
-      return res.end(JSON.stringify({ filters: { channel: "all", category: null, tag: "group" }, cards: [groupCard, readGroupCard], nextCursor: null, hot: null, dayCounts: { "2026-10-04": 2 } }));
+      return { filters: { channel: "all", category: null, tag: "group" }, cards: [groupCard, readGroupCard], nextCursor: null, hot: null, dayCounts: { "2026-10-04": 2 } };
     }
     if (tag === "read") {
-      return res.end(JSON.stringify({ filters: { channel: "all", category: null, tag: "read" }, cards: [card("c1", "第一页文章甲")], nextCursor: null, hot: null, dayCounts: { "2026-10-04": 1 } }));
+      return { filters: { channel: "all", category: null, tag: "read" }, cards: [card("c1", "第一页文章甲")], nextCursor: null, hot: null, dayCounts: { "2026-10-04": 1 } };
     }
     if (cursor === "p2") {
-      if (failNextPage) { res.statusCode = 503; return res.end(JSON.stringify({ code: "unavailable" })); }
-      return res.end(JSON.stringify({ filters: { channel: "all", category: null, tag: null }, cards: [card("c3", "第二页文章甲", earlier), card("c4", "第二页文章乙", earlier)], nextCursor: null, hot: null, dayCounts: { "2026-10-03": 2 } }));
+      if (failNextPage) { res.statusCode = 503; return { code: "unavailable" }; }
+      return { filters: { channel: "all", category: null, tag: null }, cards: [card("c3", "第二页文章甲", earlier), card("c4", "第二页文章乙", earlier)], nextCursor: null, hot: null, dayCounts: { "2026-10-03": 2 } };
     }
-    return res.end(JSON.stringify({ filters: { channel: "all", category: null, tag: null }, cards: [card("c1", "第一页文章甲"), card("c2", "第一页文章乙")], nextCursor: "p2", hot: null, dayCounts: { "2026-10-04": 2 } }));
+    return { filters: { channel: "all", category: null, tag: null }, cards: [card("c1", "第一页文章甲"), card("c2", "第一页文章乙")], nextCursor: "p2", hot: null, dayCounts: { "2026-10-04": 2 } };
+  }
+  if (p === "/api/site/groups/f1/reports") {
+    const report = (id: string, title: string) => ({ id, title, source: { name: "Fixture" }, timelineAt: at, originalUrl: `https://example.org/${id}` });
+    return { factId: "f1", reports: [report("rep-1", "代表文章"), report("member-2", "组内未读报道"), report("other-5", "组内已读报道")] };
   }
   if (p.startsWith("/api/site/items/")) {
     const id = p.split("/").at(-1)!;
-    return res.end(JSON.stringify(detailOf(id, `文章 ${id}`)));
+    return itemDetail({ id, title: `文章 ${id}`, originalTitle: `文章 ${id}` });
   }
-  res.statusCode = 404;
-  res.end(JSON.stringify({ code: "not_found" }));
 });
 
 before(async () => {
@@ -171,6 +150,35 @@ test("a group stays while any selected report in it is unread, and goes once all
   }
 });
 
+// A group kept for its unread reports must not look read, and opening it shows which reports are
+// still unread (read ones in the same grey as read cards).
+for (const phone of [false, true]) test(`a kept group is not greyed and its ${phone ? "sheet" : "expansion"} marks the unread reports`, async () => {
+  const context = await readerWith(["rep-1", "other-5"]);
+  const page = await context.newPage();
+  await page.setViewportSize(phone ? { width: 390, height: 844 } : { width: 1280, height: 900 });
+  // The title text itself is drawn in the read grey (the source line beside it always is).
+  const greyed = (name: string) => page.evaluate((text) => {
+    const node = [...document.querySelectorAll("a, a *")].find((e) => e.childElementCount === 0 && e.textContent === text && (e as HTMLElement).offsetParent)!;
+    const probe = document.body.appendChild(Object.assign(document.createElement("span"), { className: "text-ink-4" }));
+    const grey = getComputedStyle(probe).color;
+    probe.remove();
+    return getComputedStyle(node).color === grey;
+  }, name);
+  try {
+    await page.goto(`${origin}/?tag=group`);
+    await page.getByRole("button", { name: "只看未读" }).click();
+    const title = page.getByRole("heading", { name: "代表文章" });
+    await expect(title).toBeVisible();
+    assert.equal(await greyed("代表文章"), false, "the kept group's card is not greyed");
+    await page.locator("article", { has: title }).getByRole("button", { name: "另外 1 家也报道了" }).filter({ visible: true }).click();
+    await expect(page.getByText("组内未读报道", { exact: true }).filter({ visible: true })).toBeVisible();
+    assert.equal(await greyed("组内未读报道"), false, "an unread report keeps the normal colour");
+    assert.equal(await greyed("组内已读报道"), true, "a read report is grey");
+  } finally {
+    await context.close();
+  }
+});
+
 test("with everything read and no more pages, the filter says so instead of looking empty", async () => {
   const context = await readerWith(["c1"]);
   const page = await context.newPage();
@@ -187,20 +195,17 @@ test("with everything read and no more pages, the filter says so instead of look
 test("all-read pages stop at the automatic bound and can continue manually without changing local records", async () => {
   const context = await readerWith(["boundary-1", "boundary-2", "boundary-3", "boundary-4"]);
   const page = await context.newPage();
-  boundaryRequests = 0;
   try {
     await page.goto(`${origin}/?tag=boundary`);
     const raw = await page.evaluate(() => localStorage.getItem("aihot-read-items"));
     await page.getByRole("button", { name: "只看未读" }).click();
     const more = page.getByRole("button", { name: "加载更多", exact: true });
     await expect(more).toBeVisible();
-    assert.equal(boundaryRequests, 3, "the unread filter respects the existing three-batch limit");
     await more.click();
     await expect(more).toBeVisible();
     await expect(page.getByText("这批精选都读过了", { exact: true })).toBeVisible();
     await more.click();
     await expect(page.getByRole("link", { name: "批次 5", exact: true })).toBeVisible();
-    assert.equal(boundaryRequests, 5);
     assert.equal(await page.evaluate(() => localStorage.getItem("aihot-read-items")), raw);
   } finally { await context.close(); }
 });

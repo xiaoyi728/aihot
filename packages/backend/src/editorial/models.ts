@@ -46,10 +46,17 @@ export function capabilities(): Record<string, Capability> {
 }
 
 /** Names of the active steps currently routed to a service, using the same choices as model calls. */
-export async function stepsOnService(service: string): Promise<string[]> {
+export async function stepsOnService(service: string, models?: ReadonlySet<string>): Promise<string[]> {
   const current = await modelSources();
   return Object.entries(capabilities())
-    .filter(([key, c]) => MODELS[current[key]!.model]?.service === service && !c.idle?.())
+    .filter(([key, c]) => {
+      if (c.idle?.()) return false;
+      const primary = current[key]!.model;
+      return [primary, fallbackModelFor(key, primary)].some(key => {
+        const model = key && MODELS[key];
+        return model && model.service === service && (!models || models.has(model.model));
+      });
+    })
     .map(([, c]) => c.label.split("（")[0]!);
 }
 
@@ -96,4 +103,14 @@ export async function modelSources(): Promise<Record<string, { model: string; so
     else out[key] = { model: c.default, source: "default" };
   }
   return out;
+}
+
+export function fallbackModelFor(capability: string, primary: string): string | undefined {
+  return Object.values(MODELS).find(model => model.fallbackFor?.[capability] === primary && model.service !== MODELS[primary]!.service)?.key;
+}
+
+/** Preserve an explicit primary choice; only the site's evaluated pair may fail over. */
+export async function modelRoute(capability: CapabilityKey | (string & {})): Promise<{ model: string; fallbackModel?: string }> {
+  const model = await modelFor(capability);
+  return { model, fallbackModel: fallbackModelFor(capability, model) };
 }

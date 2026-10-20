@@ -9,7 +9,7 @@
 // with both reports fully described is what makes the judge usable: a yes/no question with
 // "prefer no" refused half of the true merges (measured on labelled pairs).
 import { z } from "zod";
-import { beijingDate, beijingTime } from "@aihot/contracts/time";
+import { describePublicationTime } from "../sources/dates.ts";
 import { promptText, promptVersion } from "../editorial/prompts.ts";
 
 export const RELATE_PROMPT_VERSION = promptVersion("group-pair", "group-signal");
@@ -26,6 +26,7 @@ export interface ReportView {
   source: string;
   firstParty: boolean;
   at: Date | null;
+  publicationTime?: string | null;
   summary: string | null;
   /** Saved source evidence for the current value judgement; identity candidates stay concise. */
   sourceText?: string | null;
@@ -89,16 +90,12 @@ export const SignalSchema = z.object({
   decisions: z.array(z.object({ id: z.string().regex(/^C[1-9]\d*$/), relation: RelationSchema, confidence: z.number().min(0).max(1) })),
 });
 
-function when(at: Date | null): string {
-  return at ? `${beijingDate(at)} ${beijingTime(at)}` : "未知";
-}
-
 export function describeReport(r: ReportView, label: string, extra = "", summaryLimit = 360): string {
   const f = r.frame;
   return [
     `【${label}】${extra}`,
     `标题：${r.title}`,
-    `来源：${r.source}${r.firstParty ? "（当事方/官方）" : ""}｜发布时间：${when(r.at)}`,
+    `来源：${r.source}${r.firstParty ? "（当事方/官方）" : ""}｜发布时间：${describePublicationTime(r.at, r.publicationTime)}`,
     `摘要：${(r.summary ?? "").slice(0, summaryLimit) || "（无）"}`,
     r.scope && r.scope !== "unknown" ? `资料范围：${r.scope === "composite" ? "多个独立发生的综合稿" : "单一具体发生或议题"}` : null,
     f && (f.subject || f.action || f.object)
@@ -176,9 +173,12 @@ export function signalTarget(cands: CandidateView[], verdicts: Map<number, Verdi
 /** How sure a relation must be before a report counts as evidence that two stories are one. */
 export const TIE_MIN_CONFIDENCE = 0.8;
 
-/** A report is firmly tied to a candidate it calls the same occurrence or a direct development of. */
+/** The relations that tie a report to a candidate: the same occurrence, or a direct development of it. */
+export const TIE_RELATIONS: Relation[] = ["SAME_OCCURRENCE", "SAME_STORY"];
+
+/** A report is firmly tied to a candidate it calls the same occurrence or a direct development of (in SQL: related.ts firmTie). */
 export function firmlyTied(relation: string | undefined, confidence: number | undefined, minConfidence = TIE_MIN_CONFIDENCE): boolean {
-  return (relation === "SAME_OCCURRENCE" || relation === "SAME_STORY") && (confidence ?? 0) >= minConfidence;
+  return TIE_RELATIONS.includes(relation as Relation) && (confidence ?? 0) >= minConfidence;
 }
 
 /**

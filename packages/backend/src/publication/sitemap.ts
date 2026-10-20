@@ -9,7 +9,7 @@ import { loadChangelog } from "../site/meta.ts";
 import { latestHotRanking } from "./hot.ts";
 import { ITEM_FROM } from "./items.ts";
 import { sql } from "../db.ts";
-import { cached, SHARED_ONLY } from "../lib/cache.ts";
+import { shared } from "../lib/cache.ts";
 import { escapeXml } from "../lib/text.ts";
 import { siteUrl } from "./links.ts";
 import { evidenceCondition, listedCondition, selectedCondition, storyReportCondition } from "./scope.ts";
@@ -61,7 +61,6 @@ export async function loadDiscoveryEntries(at = new Date(), limits?: { stories: 
     { loc: "/weekly", revision: reportRevision("weekly"), changefreq: "weekly", priority: 0.7 },
     { loc: "/monthly", revision: reportRevision("monthly"), changefreq: "monthly", priority: 0.6 },
     { loc: "/topics", revision: sha256(stableJson(topics)), changefreq: "daily", priority: 0.7 },
-    ...serverModules().flatMap((m) => m.sitemap?.pages ?? []),
     { loc: "/agent", revision: sha256(stableJson([SITE, ACCESS, AGENT])), changefreq: "weekly", priority: 0.7 },
     { loc: "/about", revision: sha256(stableJson(ABOUT)), changefreq: "monthly", priority: 0.5 },
     { loc: "/terms", revision: sha256(stableJson([POLICY.terms, await readFile(path.join(REPO_ROOT, "site/pages/terms.md"), "utf8")])), changefreq: "monthly", priority: 0.4 },
@@ -120,11 +119,11 @@ async function build(at: Date): Promise<string> {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
 
-const rebuilding = cached(refreshSitemap, SHARED_ONLY);
+const rebuilding = shared<void, SitemapDocument>(() => "sitemap", refreshSitemap);
 
 export function loadSitemap(): Promise<SitemapDocument> {
   if (lastGood && lastGood.expiresAt > Date.now()) return Promise.resolve(lastGood);
-  return rebuilding.get();
+  return rebuilding();
 }
 
 async function refreshSitemap(): Promise<SitemapDocument> {

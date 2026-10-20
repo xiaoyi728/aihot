@@ -8,16 +8,18 @@ import { audit, auditHistory, Conflict } from "../audit.ts";
 import { groupingReset } from "../content/provenance.ts";
 import { sql, type Db } from "../db.ts";
 import { enqueue, QUEUES } from "../jobs/queue.ts";
-import { republishKey } from "../jobs/publication.ts";
+import { republishKey, requestRepublish } from "../jobs/publication.ts";
 import { normalizeUrl } from "../lib/url.ts";
 import { serverModules } from "../modules.ts";
 import { fetchJsonList } from "../sources/json-list.ts";
 import { fetchRss } from "../sources/rss.ts";
 import { assertSupportedConfig, UnsupportedConfig } from "../sources/config-keys.ts";
-import { admitListing, filterPublicationWindow } from "../sources/filters.ts";
-import type { SourceRow } from "../sources/types.ts";
-import { fetchDetail, fetchWebList } from "../sources/web-list.ts";
+import { enrichDetails, listingEntries, storedDetails } from "../sources/collect.ts";
+import { filterPublicationWindow } from "../sources/filters.ts";
+import { FetchError, type Candidate, type SourceRow } from "../sources/types.ts";
+import { fetchWebList } from "../sources/web-list.ts";
 import { fetchXSearch } from "../sources/x.ts";
+import { xHandle } from "../sources/account.ts";
 
 
 export interface SourceListFilters {
@@ -84,32 +86,26 @@ export async function previewStoredSource(id: string): Promise<BeforeJson<AdminS
 export async function previewSource(draft: Pick<SourceRow, "id" | "kind" | "config"> & Partial<SourceRow>): Promise<BeforeJson<AdminSourcePreview>> {
   const source = { name: draft.id, enabled: true, cursor: null, tier: "T2", participation_mode: "editorial", ...draft } as SourceRow;
   assertSupportedConfig(source.kind, source.config);
-  const started = Date.now();
-  let candidates;
-  if (source.kind === "rss") candidates = (await fetchRss(source, { force: true })).candidates;
-  else if (source.kind === "web_list") candidates = await fetchWebList(source);
-  else if (source.kind === "json_list") candidates = await fetchJsonList(source);
-  else if (source.kind === "x_search") candidates = (await fetchXSearch(source)).candidates;
+  const started = performance.now();
+  let found;
+  if (source.kind === "rss") found = (await fetchRss(source, { force: true })).candidates;
+  else if (source.kind === "web_list") found = await fetchWebList(source);
+  else if (source.kind === "json_list") found = await fetchJsonList(source);
+  else if (source.kind === "x_search") found = (await fetchXSearch(source)).candidates;
   else throw new Error(`preview is not available for ${source.kind} sources`);
-  candidates = admitListing(candidates, source);
-  // A publication boundary depends on the article's date, including when only its detail page has
-  // one. The same bounded detail rules as collection apply; a failed/missing date stays inadmissible.
-  const detail = source.config.detail;
-  if (source.config.publishedAfter && detail) {
-    let reads = 0;
-    for (const candidate of candidates) {
-      if (detail.publishedAtAuthoritative === true) candidate.publishedAt = null;
-      if (candidate.publishedAt || reads >= Number(detail.maxFetches ?? 0)) continue;
-      reads += 1;
-      try {
-        const got = await fetchDetail(candidate.url, source, { date: true, title: false, summary: false });
-        candidate.publishedAt = got.publishedAt;
-      } catch { /* An inaccessible detail cannot establish admission to the publication window. */ }
-    }
+  // The listing and its detail pages as collection reads them, within the fixed publication boundary;
+  // the limits of a first import and of later runs depend on the source's runs and are not previewed.
+  let candidates = await listingEntries(source, found);
+  const known = await storedDetails(candidates.map((c) => c.identityKey!));
+  const admits = (c: Candidate) => filterPublicationWindow([c], source.config.publishedAfter).length > 0;
+  const reads = await enrichDetails(candidates, source, known, { budget: Number(source.config.detail?.maxFetches ?? 0), datedOut: {}, admits });
+  // A page that fails keeps its listing data, as in collection; when none can be read, the rules are what fails.
+  if (reads.failures.length && reads.failures.length === reads.attempts) {
+    throw new FetchError(`原文页全部读取失败（${reads.failures.length} 页）：${reads.failures.map((f) => `${f.url}（${f.error}）`).join("；")}`);
   }
-  candidates = filterPublicationWindow(candidates, source.config.publishedAfter);
+  candidates = candidates.filter(admits);
   return {
-    ms: Date.now() - started,
+    ms: Math.round(performance.now() - started),
     count: candidates.length,
     items: candidates.slice(0, 20).map((c) => ({ title: c.title, url: c.url, publishedAt: c.publishedAt?.toISOString() ?? null, excerpt: (c.excerpt ?? c.bodyText ?? "").slice(0, 200) })),
   };
@@ -197,9 +193,7 @@ export async function updateSource(id: string, input: { patch: unknown; version:
     // all (in the worker) so a revoked licence or an isolated source stops on every exit.
     const publisherChanged = patch.config && ["publisherRole", "publisherUrlPrefixes", "publisherRequiresDiscovery"].some(k => JSON.stringify((before.config as Record<string, unknown>)[k]) !== JSON.stringify(patch.config![k]));
     if (publisherChanged || keys.some((k) => PUBLICATION_FIELDS.includes(k) && JSON.stringify(before[k]) !== JSON.stringify(patch[k]))) {
-      await tx`INSERT INTO settings (key, value, updated_by) VALUES (${republishKey(id)}, ${tx.json({ status: "queued", queuedAt: new Date().toISOString() })}, ${actor})
-               ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_by = EXCLUDED.updated_by, updated_at = now()`;
-      await enqueue(QUEUES.republishSource, { sourceId: id }, { singletonKey: id }, tx);
+      await requestRepublish(tx, id, actor);
     }
     return after;
   });
@@ -238,8 +232,8 @@ const CreateSchema = z
 export function sourceIdentity(kind: string, config: Record<string, unknown>): string | null {
   const raw = (config.feedUrl ?? config.url ?? config.listUrl ?? config.endpoint ?? null) as string | null;
   if (kind === "x_search") {
-    const m = /from:([A-Za-z0-9_]{1,15})/.exec(String(config.query ?? ""));
-    return m ? `x:${m[1]!.toLowerCase()}` : null;
+    const handle = xHandle(config);
+    return handle ? `x:${handle.toLowerCase()}` : null;
   }
   // A WeChat account is one account whichever id names it.
   if (kind === "mp_account") {

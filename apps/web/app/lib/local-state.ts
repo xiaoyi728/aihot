@@ -307,6 +307,19 @@ export function useAppearanceSync() {
   }, [pref]);
 }
 
+/**
+ * Calls `onChange` once the page shows another appearance, for drawings that read their colours and fonts
+ * from it: "theme" when the colours change (the reader's choice, or the system's while the page follows
+ * it), "font" when the font preference does. Returns the unsubscribe.
+ */
+export function watchAppearance(onChange: (change: "theme" | "font") => void): () => void {
+  const observer = new MutationObserver((records) => {
+    for (const change of new Set(records.map((r) => (r.attributeName === "data-font" ? "font" : "theme")))) onChange(change);
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-font"] });
+  return () => observer.disconnect();
+}
+
 /** Inline script run before paint so the first frame already has the reader's appearance. */
 export const APPEARANCE_BOOT_SCRIPT = `(function(){var f='system';try{f=localStorage.getItem('${KEYS.font}')==='browser'?'browser':'system'}catch(e){}document.documentElement.setAttribute('data-font',f);try{var t=localStorage.getItem('${KEYS.theme}');if(t==='light'||t==='dark'){var c=t==='dark'?'${THEME_COLOR.dark}':'${THEME_COLOR.light}';document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=c})}else{t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}})();`;
 

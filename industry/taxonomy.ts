@@ -15,20 +15,20 @@
  */
 export const CATEGORIES = [
   // ── AI 相关 ────────────────────────────────────────────────────────────────────────────
-  { key: "ai-models", label: "AI 模型", feedLabel: "AI 模型", section: "AI 模型与产品", guide: "模型本身的发布、版本、权重开放、能力或价格变化，以及既有榜单上的模型成绩。公布一次跑分不是发布新基准，也不是教程。" },
-  { key: "ai-products", label: "AI 产品", feedLabel: "AI 产品", section: "AI 模型与产品", guide: "可使用的 AI 产品、功能、应用、工具、API、平台和工程组件的发布更新。模型厂商发布的推理框架、算子库、硬件适配组件仍是产品，不能因为厂商名归成模型。AI 服务器、加速卡等硬件整机归 PCB 相关的 pcb-demand，芯片设计、流片归 ai-paper 或 ai-industry。" },
-  { key: "ai-paper", label: "AI 论文", feedLabel: "AI 论文", section: "AI 研究", guide: "以新研究方法、实验设计与发现为核心的论文、技术报告、新基准或研究数据集。系统性红队实验属于研究；既有榜单成绩归模型，真实事故的新闻调查归行业。" },
-  { key: "ai-industry", label: "AI 行业", feedLabel: "AI 行业动态", section: "AI 行业动态", guide: "AI 领域的公司经营、融资并购、人事、合作、诉讼、政策、算力与数据中心建设、真实安全事故及调查进展。新闻由当事人发帖、带有态度，也不因此变成观点。" },
+  { key: "ai-models", tagColor: "indigo", label: "AI 模型", feedLabel: "AI 模型", section: "AI 模型与产品", guide: "模型本身的发布、版本、权重开放、能力或价格变化，以及既有榜单上的模型成绩。公布一次跑分不是发布新基准，也不是教程。" },
+  { key: "ai-products", tagColor: "turquoise", label: "AI 产品", feedLabel: "AI 产品", section: "AI 模型与产品", guide: "可使用的 AI 产品、功能、应用、工具、API、平台和工程组件的发布更新。模型厂商发布的推理框架、算子库、硬件适配组件仍是产品，不能因为厂商名归成模型。AI 服务器、加速卡等硬件整机归 PCB 相关的 pcb-demand，芯片设计、流片归 ai-paper 或 ai-industry。" },
+  { key: "ai-paper", tagColor: "violet", label: "AI 论文", feedLabel: "AI 论文", section: "AI 研究", guide: "以新研究方法、实验设计与发现为核心的论文、技术报告、新基准或研究数据集。系统性红队实验属于研究；既有榜单成绩归模型，真实事故的新闻调查归行业。" },
+  { key: "ai-industry", tagColor: "orange", label: "AI 行业", feedLabel: "AI 行业动态", section: "AI 行业动态", guide: "AI 领域的公司经营、融资并购、人事、合作、诉讼、政策、算力与数据中心建设、真实安全事故及调查进展。新闻由当事人发帖、带有态度，也不因此变成观点。" },
   // ── PCB 相关 ──────────────────────────────────────────────────────────────────────────
-  { key: "pcb-capacity", label: "PCB 产能", feedLabel: "PCB 产能", section: "PCB 产能与扩产", guide: "PCB 及上游材料设备厂商的产能建设与投产：新厂、扩产、技改、爬坡与达产、关停与搬迁、设备采购安装。只报道意向或签约未开工的也归这里，但必须写清阶段。" },
-  { key: "pcb-tech", label: "PCB 技术", feedLabel: "PCB 技术", section: "PCB 技术突破", guide: "制造与产品技术进展：HDI、类载板、IC 载板与 ABF、高多层板、软板与软硬结合板、埋容埋阻、材料与工艺革新、检测与方法。已量产的技术改进算，纯学术论文归 pcb-supply 或 ai-paper。" },
-  { key: "pcb-business", label: "PCB 经营", feedLabel: "PCB 经营与订单", section: "PCB 经营与订单", guide: "PCB 企业的经营动作：财报与业绩预告、接单与在手订单、大客户与终端应用（服务器、汽车、手机、卫星）、涨价与降价、并购重组、投资与合资、募资与减持。" },
-  { key: "pcb-supply", label: "PCB 上游", feedLabel: "PCB 上游与设备", section: "PCB 上游与设备", guide: "覆铜板、铜箔、树脂、油墨、干膜、钻针等材料，以及钻孔、曝光、蚀刻、电镀、检测等专用设备的发布、供需、价格与厂商动作。标准与行业统计（IPC、CPCA、book-to-bill）也归这里。" },
+  { key: "pcb-capacity", tagColor: "blue", label: "PCB 产能", feedLabel: "PCB 产能", section: "PCB 产能与扩产", guide: "PCB 及上游材料设备厂商的产能建设与投产：新厂、扩产、技改、爬坡与达产、关停与搬迁、设备采购安装。只报道意向或签约未开工的也归这里，但必须写清阶段。" },
+  { key: "pcb-tech", tagColor: "cyan", label: "PCB 技术", feedLabel: "PCB 技术", section: "PCB 技术突破", guide: "制造与产品技术进展：HDI、类载板、IC 载板与 ABF、高多层板、软板与软硬结合板、埋容埋阻、材料与工艺革新、检测与方法。已量产的技术改进算，纯学术论文归 pcb-supply 或 ai-paper。" },
+  { key: "pcb-business", tagColor: "green", label: "PCB 经营", feedLabel: "PCB 经营与订单", section: "PCB 经营与订单", guide: "PCB 企业的经营动作：财报与业绩预告、接单与在手订单、大客户与终端应用（服务器、汽车、手机、卫星）、涨价与降价、并购重组、投资与合资、募资与减持。" },
+  { key: "pcb-supply", tagColor: "yellow", label: "PCB 上游", feedLabel: "PCB 上游与设备", section: "PCB 上游与设备", guide: "覆铜板、铜箔、树脂、油墨、干膜、钻针等材料，以及钻孔、曝光、蚀刻、电镀、检测等专用设备的发布、供需、价格与厂商动作。标准与行业统计（IPC、CPCA、book-to-bill）也归这里。" },
   // ── 两个行业共有 ──────────────────────────────────────────────────────────────────────
-  { key: "cross-demand", label: "AI×PCB", feedLabel: "AI 与 PCB 交叉", section: "AI 与 PCB 交叉", guide: "同时以 AI 算力硬件需求和 PCB 供给两侧为核心的事件：AI 服务器与交换机带动的高多层板、HDI 与载板需求，PCB 厂拿到算力大客户订单，材料设备厂因 AI 需求调整产能。只要报道的主线是两侧的因果关系，就归这里，不按它提到哪家公司归类。" },
-  { key: "tip", label: "教程", section: "技巧与观点", guide: "读者可以照着使用的方法、提示词、工具用法、PCB 设计与制造工程实践复盘、技术讲解。重点是可复用的做法；单纯发布工具或产品归对应类别，只有态度和预测而无做法归观点。", commentary: true },
-  { key: "opinion", label: "观点", section: "技巧与观点", guide: "重点是作者的解释、判断、主张、预测、评论或访谈观点。讨论市场不自动归行业，作者是名人不自动归观点。", commentary: true },
-] as const satisfies ReadonlyArray<{ key: string; label: string; feedLabel?: string; section: string; guide: string; commentary?: true }>;
+  { key: "cross-demand", tagColor: "red", label: "AI×PCB", feedLabel: "AI 与 PCB 交叉", section: "AI 与 PCB 交叉", guide: "同时以 AI 算力硬件需求和 PCB 供给两侧为核心的事件：AI 服务器与交换机带动的高多层板、HDI 与载板需求，PCB 厂拿到算力大客户订单，材料设备厂因 AI 需求调整产能。只要报道的主线是两侧的因果关系，就归这里，不按它提到哪家公司归类。" },
+  { key: "tip", tagColor: "green", label: "教程", section: "技巧与观点", guide: "读者可以照着使用的方法、提示词、工具用法、PCB 设计与制造工程实践复盘、技术讲解。重点是可复用的做法；单纯发布工具或产品归对应类别，只有态度和预测而无做法归观点。", commentary: true },
+  { key: "opinion", tagColor: "purple", label: "观点", section: "技巧与观点", guide: "重点是作者的解释、判断、主张、预测、评论或访谈观点。讨论市场不自动归行业，作者是名人不自动归观点。", commentary: true },
+] as const satisfies ReadonlyArray<{ key: string; tagColor: string; label: string; feedLabel?: string; section: string; guide: string; commentary?: true }>;
 
 /**
  * 这个行业最受关注的一类发布（AI 侧是新模型）：日报报头的“N 个新模型”、改分类后修订已出的报告都按它数。
@@ -106,26 +106,26 @@ export const TAG_SYNONYMS: Readonly<Record<string, string>> = {
  * aliases 给结构抽取模型看；otherNames 是公司自己的其他称呼（官方账号名、子品牌），
  * 把事实的主体对到发布方时也认它们。
  */
-export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[]; otherNames?: string[] }> = {
+export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[]; orgNames?: string[]; otherNames?: string[] }> = {
   // ── AI ──
   "world-labs": { name: "World Labs", displayTag: null, aliases: ["World Labs"] },
   "thinking-machines": { name: "Thinking Machines Lab", displayTag: null, aliases: ["Thinking Machines"] },
   amd: { name: "AMD", displayTag: null, aliases: ["AMD", "Advanced Micro Devices"] },
-  openai: { name: "OpenAI", displayTag: "OpenAI", aliases: ["OpenAI", "ChatGPT", "Sora", "Codex", "GPT"], otherNames: ["OpenAI Developers"] },
-  anthropic: { name: "Anthropic", displayTag: "Anthropic", aliases: ["Anthropic", "Claude"], otherNames: ["Claude Code"] },
-  google: { name: "Google", displayTag: "Google", aliases: ["Google", "DeepMind", "Gemini", "谷歌"], otherNames: ["Google DeepMind", "Google Research", "Google AI", "Google Labs", "Google Cloud"] },
-  deepseek: { name: "DeepSeek", displayTag: "DeepSeek", aliases: ["DeepSeek", "深度求索"] },
-  qwen: { name: "千问 Qwen", displayTag: null, aliases: ["Qwen", "通义", "阿里"], otherNames: ["通义千问", "千问", "千问APP", "Qwen Team", "通义实验室", "阿里巴巴", "Alibaba", "阿里云", "Alibaba Cloud"] },
-  kimi: { name: "Kimi / 月之暗面", displayTag: null, aliases: ["Kimi", "月之暗面", "Moonshot"], otherNames: ["Moonshot AI"] },
-  minimax: { name: "MiniMax", displayTag: null, aliases: ["MiniMax", "海螺"], otherNames: ["稀宇科技"] },
-  zhipu: { name: "智谱 GLM", displayTag: null, aliases: ["智谱", "GLM", "Z.ai"], otherNames: ["智谱AI", "Zhipu", "Zhipu AI"] },
-  xai: { name: "xAI", displayTag: "xAI", aliases: ["xAI", "Grok"], otherNames: ["SpaceXAI"] },
-  meta: { name: "Meta", displayTag: "Meta", aliases: ["Meta", "Llama"], otherNames: ["Meta AI", "AI at Meta"] },
-  microsoft: { name: "Microsoft", displayTag: "Microsoft", aliases: ["Microsoft", "微软", "Copilot"], otherNames: ["Microsoft Research", "Microsoft AI"] },
-  nvidia: { name: "NVIDIA", displayTag: null, aliases: ["NVIDIA", "英伟达"] },
-  "hugging-face": { name: "Hugging Face", displayTag: "Hugging Face", aliases: ["Hugging Face"], otherNames: ["HuggingFace"] },
-  cursor: { name: "Cursor", displayTag: null, aliases: ["Cursor", "Anysphere"] },
-  openrouter: { name: "OpenRouter", displayTag: null, aliases: ["OpenRouter"] },
+  openai: { name: "OpenAI", displayTag: "OpenAI", aliases: ["OpenAI", "ChatGPT", "Sora", "Codex", "GPT"], orgNames: ["OpenAI"], otherNames: ["OpenAI Developers"] },
+  anthropic: { name: "Anthropic", displayTag: "Anthropic", aliases: ["Anthropic", "Claude"], orgNames: ["Anthropic"], otherNames: ["Claude Code"] },
+  google: { name: "Google", displayTag: "Google", aliases: ["Google", "DeepMind", "Gemini", "谷歌"], orgNames: ["Google DeepMind", "Google Research", "Google", "DeepMind", "谷歌"], otherNames: ["Google DeepMind", "Google Research", "Google AI", "Google Labs", "Google Cloud"] },
+  deepseek: { name: "DeepSeek", displayTag: "DeepSeek", aliases: ["DeepSeek", "深度求索"], orgNames: ["DeepSeek", "深度求索"] },
+  qwen: { name: "千问 Qwen", displayTag: null, aliases: ["Qwen", "通义", "阿里"], orgNames: ["通义千问", "通义实验室", "阿里巴巴", "阿里云", "阿里", "Qwen Team", "Qwen", "Alibaba"], otherNames: ["通义千问", "千问", "千问APP", "Qwen Team", "通义实验室", "阿里巴巴", "Alibaba", "阿里云", "Alibaba Cloud"] },
+  kimi: { name: "Kimi / 月之暗面", displayTag: null, aliases: ["Kimi", "月之暗面", "Moonshot"], orgNames: ["Moonshot AI", "月之暗面", "Kimi"], otherNames: ["Moonshot AI"] },
+  minimax: { name: "MiniMax", displayTag: null, aliases: ["MiniMax", "海螺"], orgNames: ["MiniMax", "稀宇科技"], otherNames: ["稀宇科技"] },
+  zhipu: { name: "智谱 GLM", displayTag: null, aliases: ["智谱", "GLM", "Z.ai"], orgNames: ["智谱AI", "智谱", "Zhipu AI", "Z.ai"], otherNames: ["智谱AI", "Zhipu", "Zhipu AI"] },
+  xai: { name: "xAI", displayTag: "xAI", aliases: ["xAI", "Grok"], orgNames: ["SpaceX Super Intelligence", "SpaceXAI", "SpaceXSI", "xAI"], otherNames: ["SpaceXAI", "Grok Bot"] },
+  meta: { name: "Meta", displayTag: "Meta", aliases: ["Meta", "Llama"], orgNames: ["Meta Superintelligence Labs", "Meta AI", "Meta"], otherNames: ["Meta AI", "AI at Meta", "Muse"] },
+  microsoft: { name: "Microsoft", displayTag: "Microsoft", aliases: ["Microsoft", "微软", "Copilot"], orgNames: ["Microsoft Research", "Microsoft AI", "Microsoft", "微软"], otherNames: ["Microsoft Research", "Microsoft AI"] },
+  nvidia: { name: "NVIDIA", displayTag: null, aliases: ["NVIDIA", "英伟达"], orgNames: ["NVIDIA", "英伟达"] },
+  "hugging-face": { name: "Hugging Face", displayTag: "Hugging Face", aliases: ["Hugging Face"], orgNames: ["Hugging Face", "HuggingFace"], otherNames: ["HuggingFace"] },
+  cursor: { name: "Cursor", displayTag: null, aliases: ["Cursor", "Anysphere"], orgNames: ["Cursor"] },
+  openrouter: { name: "OpenRouter", displayTag: null, aliases: ["OpenRouter"], orgNames: ["OpenRouter"] },
   amazon: { name: "Amazon / AWS", displayTag: null, aliases: ["Amazon", "AWS", "亚马逊"], otherNames: ["AWS Machine Learning"] },
   github: { name: "GitHub", displayTag: "GitHub", aliases: ["GitHub"], otherNames: ["GitHub Blog"] },
   baidu: { name: "百度文心", displayTag: null, aliases: ["百度", "Baidu", "文心", "ERNIE Bot"], otherNames: ["文心一言"] },

@@ -4,12 +4,14 @@
 // - tracking and obsolete positioning parameters leak into canonical, or ordinary archives become noindex;
 // - a report's title omits its visible lead, or metadata promotes a withdrawn citation;
 // - an article invents a modification date from its source's publication date or omits its image;
-// - a story has no machine-readable subject, or claims its first report is its own publication date.
+// - a story has no machine-readable subject, or claims its first report is its own publication date;
+// - the founder is tied to only one public profile, so search engines and AI answers cannot connect the
+//   others to the site (2026-10-17).
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { after, before, test } from "node:test";
 import * as cheerio from "cheerio";
-import type { FeedItemSummary, ReportCitation, ReportDetail, ReportKind, SiteItemDetail, StoryDetail } from "@aihot/contracts/site";
+import { reportDateLabel, type FeedItemSummary, type ReportCitation, type ReportDetail, type ReportKind, type SiteItemDetail, type StoryDetail } from "@aihot/contracts/site";
 import { SITE, withSubject } from "@aihot/site";
 import { articleLd, readFilters, reportLd } from "../apps/web/app/lib/seo.ts";
 import { startWebServer, type WebServer } from "../apps/web/tests/web-server.ts";
@@ -75,11 +77,12 @@ test("ordinary feed pages remain indexable and normalize ignored parameters", as
   }
 });
 
-for (const [kind, label] of [["daily", "日报"], ["weekly", "周报"], ["monthly", "月报"]] as const) {
+// Chinese readers search issues by the date as they write it ("10月4日 AI 新闻"), not by the key.
+for (const [kind, label, date] of [["daily", "日报", "10月4日"], ["weekly", "周报", "9月28日—10月4日"], ["monthly", "月报", "2026年10月"]] as const) {
   test(`${kind} issue metadata describes its visible lead while the permanent entry keeps its title`, async () => {
     const r = report(kind);
     const $ = await page(`/${kind}/${r.key}`);
-    const title = `${withSubject(label)} ${r.key}：${r.lead!.title}`;
+    const title = `${withSubject(label)}｜${date}：${r.lead!.title}`;
     assert.equal($("title").text(), `${title} · ${SITE.name}`);
     assert.equal($("meta[property='og:title']").attr("content"), title);
     assert.ok($("main").text().includes(r.lead!.title));
@@ -92,12 +95,25 @@ for (const [kind, label] of [["daily", "日报"], ["weekly", "周报"], ["monthl
   });
 }
 
+test("an issue's date reads as Chinese readers write it, across months and years", () => {
+  assert.equal(reportDateLabel("daily", "2026-10-17"), "10月17日");
+  assert.equal(reportDateLabel("weekly", "2026-W42"), "10月12日—18日");
+  assert.equal(reportDateLabel("weekly", "2026-W53"), "12月28日—1月3日");
+  assert.equal(reportDateLabel("monthly", "2026-01"), "2026年1月");
+});
+
 test("a report without an edited lead uses only a still-public visible highlight", () => {
   const r = { ...report("weekly"), lead: null, highlights: [citation(false), citation(true)] };
   assert.match(reportLd(r, "/weekly/2026-W40", "导读").headline, new RegExp(item.title));
   assert.doesNotMatch(reportLd(r, "/weekly/2026-W40", "导读").headline, /已撤下/);
 });
 
+test("the homepage ties the founder to every public profile the site lists", async () => {
+  const founder = SITE.organization.founder;
+  const organization = structured(await page("/")).find((entry) => entry["@type"] === "Organization")!;
+  if (!founder) return assert.equal("founder" in organization, false);
+  assert.deepEqual((organization.founder as Record<string, unknown>).sameAs, founder.sameAs);
+});
 test("article metadata has a representative image and does not invent an update timestamp", async () => {
   const $ = await page(`/items/${item.id}`);
   const article = structured($).find((entry) => entry["@type"] === "NewsArticle")!;

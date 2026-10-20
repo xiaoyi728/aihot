@@ -26,23 +26,31 @@ interface ModelReport {
   cases?: CaseIn[];
 }
 
+const invalid = (message: string) => Object.assign(new Error(message), { statusCode: 400 });
+
 /** A report as scripts/eval-selection.ts writes it: { meta, models }. */
 export async function importSelectBenchRun(report: unknown, label: string, actor: string) {
   const r = report as { meta?: Record<string, unknown>; models?: Record<string, ModelReport> };
   const models = r.models ?? {};
   const names = Object.keys(models).filter((m) => models[m]?.summary);
-  if (!names.length) throw new Error("report has no model summaries");
+  if (!names.length) throw invalid("report has no model summaries");
   // Reject invalid evidence before writing a run; the same case may appear once per model.
+  const goldByCase = new Map<string, string>();
   for (const m of names) {
     const cases = models[m]!.cases;
     if (cases === undefined) continue;
-    if (!Array.isArray(cases)) throw new Error(`${m}: cases must be an array`);
+    if (!Array.isArray(cases)) throw invalid(`${m}: cases must be an array`);
     const ids = new Set<string>();
     for (const c of cases) {
-      if (!c || typeof c.caseId !== "string" || !c.caseId.trim()) throw new Error(`${m}: caseId must be a non-empty string`);
-      if (ids.has(c.caseId)) throw new Error(`${m}: duplicate caseId ${c.caseId}`);
+      if (!c || typeof c.caseId !== "string" || !c.caseId.trim()) throw invalid(`${m}: caseId must be a non-empty string`);
+      if (ids.has(c.caseId)) throw invalid(`${m}: duplicate caseId ${c.caseId}`);
       ids.add(c.caseId);
-      if (!["select", "reject", "either"].includes(c.gold)) throw new Error(`${m}: ${c.caseId}: invalid gold decision`);
+      if (!["select", "reject", "either"].includes(c.gold)) throw invalid(`${m}: ${c.caseId}: invalid gold decision`);
+      const previousGold = goldByCase.get(c.caseId);
+      if (previousGold !== undefined && previousGold !== c.gold) {
+        throw invalid(`${m}: ${c.caseId}: conflicting gold decision across models`);
+      }
+      goldByCase.set(c.caseId, c.gold);
     }
   }
   const meta = r.meta ?? {};

@@ -43,6 +43,21 @@ const SECTIONS: Array<{ title: string; items: NavItem[] }> = [
 /** Whether an engine page is a way in from the navigation (site.ts NAV.hidden); a hidden page still opens. */
 export const inNav = (to: string) => !(NAV.hidden as readonly string[]).includes(to);
 
+const UP = {
+  "/hot": { name: "热点榜", back: "热点", tab: "hot" },
+  "/topics": { name: "主题", back: "全部主题", tab: "me" },
+} as const;
+
+/**
+ * Where pages under a navigation entry lead back up to: the entry, or 精选 in its place while the site hides
+ * it. `name` is for breadcrumbs and desktop back links (热点榜), `back` for the phone bar (热点), `tab` the
+ * phone tab it sits under, `crumbs` its breadcrumb after the site's home.
+ */
+export function navUp(entry: keyof typeof UP): { to: string; name: string; back: string; tab: TabKey; crumbs: Array<{ name: string; path: string }> } {
+  if (!inNav(entry)) return { to: "/", name: "精选", back: "精选", tab: "featured", crumbs: [] };
+  return { to: entry, ...UP[entry], crumbs: [{ name: UP[entry].name, path: entry }] };
+}
+
 /**
  * The sidebar: the engine's sections with the modules' between 内容 and 更多; a module naming a section
  * that is already there adds to it.

@@ -55,12 +55,14 @@ test("either cases do not lower decisive coverage or complete accuracy", () => {
 });
 
 test("threshold sweep uses the same decisive failure denominator", () => {
+  // Each case carries the scores both calls returned; scoresSelect holds their sum against 2 × threshold.
+  const scores = (a: number, b: number) => ({ model: "test", threshold: 0, values: [a, b], receiptIds: [0, 0], reused: false });
   const metrics = selectionThresholdMetrics([
-    { gold: "select", available: true, relevance: "pass", score: 80 },
-    { gold: "select", available: false, relevance: null, score: null },
-    { gold: "reject", available: true, relevance: "pass", score: 70 },
-    { gold: "reject", available: true, relevance: "pass", score: 30 },
-    { gold: "either", available: false, relevance: null, score: null },
+    { gold: "select", available: true, passed: true, scores: scores(80, 80) },
+    { gold: "select", available: false, passed: false, scores: null },
+    { gold: "reject", available: true, passed: true, scores: scores(70, 70) },
+    { gold: "reject", available: true, passed: true, scores: scores(30, 30) },
+    { gold: "either", available: false, passed: false, scores: null },
   ], 60);
 
   assert.deepEqual(metrics, {

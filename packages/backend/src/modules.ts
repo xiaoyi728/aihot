@@ -21,21 +21,6 @@ export interface Scheduled {
   when?: () => boolean;
 }
 
-/**
- * A module's notification routing policy (ServerModule.responder):
- * the owner hears only what it hands back; held findings do not imply recovery.
- */
-export interface Responder {
-  /**
-   * Every problem the alerts check found (operations/alerts.ts); a problem it held that is missing has ended.
-   * `tell` is what the owner should hear about now; `held` names the problems still open, so the owner is not
-   * told that something they heard about earlier has ended while it lasts.
-   */
-  take: (found: Finding[], now: number) => Promise<{ tell: Finding[]; held: string[] }>;
-  /** A problem found while the alerts check cannot run (operations/watch.ts: the worker is down); what the owner should hear about it, if anything. */
-  raise: (found: Finding, now: number) => Promise<Finding | null>;
-}
-
 /** A model step (editorial/models.ts); its default model comes from site/models.ts, else `default`. */
 export interface ModelStep {
   label: string;
@@ -68,8 +53,6 @@ export interface AgentAbility {
     use: string;
     description: string;
     input: z.ZodObject;
-    /** Optional successful empty-site call for scripts/mcp-check.ts; without it, only inputs accepting {} are called. */
-    checkArgs?: Record<string, unknown>;
     /** The text (the same answer) and the structured content. */
     run: (args: Record<string, unknown>) => Promise<{ text: string; structured: Record<string, unknown> }>;
   };
@@ -212,8 +195,6 @@ export interface ServerModule {
   };
   llms?: () => Promise<LlmsLines> | LlmsLines;
   sitemap?: {
-    /** After the engine's content pages (the topics), before the site's own (agent, about, terms). */
-    pages?: SitemapEntry[];
     /** After the stories. */
     entries?: () => Promise<SitemapEntry[]>;
   };
@@ -230,12 +211,6 @@ export interface ServerModule {
   schedules?: Scheduled[];
   /** What is wrong now, for the owner's alerts (operations/alerts.ts), after the engine's problems. */
   alerts?: (now: number) => Promise<Finding[]>;
-  /**
-   * Chooses which problems the owner hears about: the first installed module with one (operations/alerts.ts,
-   * operations/watch.ts). What it holds back is the module's to hand to whoever handles it; with one, the
-   * daily digest and the weekly source report have no schedule (apps/worker/src/schedules.ts).
-   */
-  responder?: Responder;
   /** Its share of the daily retention run (operations/retention.ts): what it deleted or aggregated. */
   retention?: (now: Date) => Promise<Record<string, unknown>>;
   on?: Partial<EngineHooks>;
@@ -297,11 +272,6 @@ export function installModules(modules: readonly ServerModule[]): void {
 
 export function serverModules(): readonly ServerModule[] {
   return installed;
-}
-
-/** The first installed module's responder, if any. */
-export function responder(): Responder | null {
-  return installed.find((m) => m.responder)?.responder ?? null;
 }
 
 /** The first installed module's reminder for the person behind this request, at this exit. */

@@ -12,7 +12,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { REPO_ROOT } from "../config.ts";
 import { sql } from "../db.ts";
-import { ENTITIES } from "../editorial/vocabulary.ts";
+import { ENTITIES, entityNames } from "../editorial/vocabulary.ts";
 import { cached, type Cached } from "../lib/cache.ts";
 import { sha256, stableJson } from "../lib/ids.ts";
 import { serverModules } from "../modules.ts";
@@ -47,7 +47,7 @@ const nameParts = (name: string) => name.split("/").map((s) => s.trim()).filter(
 /** Any name of the company: the topic's name and its parts, the subject's names. Latin names match as whole words. */
 function titlePattern(name: string, entityId: string): string {
   const e = ENTITIES[entityId];
-  const names = new Set([name, ...nameParts(name), ...(e ? [e.name, ...e.aliases, ...(e.otherNames ?? [])] : [])]);
+  const names = new Set([name, ...nameParts(name), ...(e ? entityNames(e) : [])]);
   return `(?<![A-Za-z])(${[...names].map(escape).join("|")})(?![A-Za-z])`;
 }
 

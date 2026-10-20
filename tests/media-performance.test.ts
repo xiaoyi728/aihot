@@ -295,7 +295,7 @@ test("image validators save unchanged bytes only after signature verification", 
   }
 });
 
-test("image failures are cached for at most a minute and never beyond the signature", async () => {
+test("image failures are cached for at most a minute and never beyond the signature", async (t) => {
   const { default: Fastify } = await import("fastify");
   const { registerMedia } = await import("../apps/api/src/routes/media.ts");
   const { signature } = await import("@aihot/backend/media/imgproxy");
@@ -304,13 +304,18 @@ test("image failures are cached for at most a minute and never beyond the signat
   try {
     for (const lifetime of [3600, 15]) {
       const url = `${base}/fail`;
-      const exp = String(Math.floor(Date.now() / 1000) + lifetime);
+      const signedAt = Date.now();
+      const exp = String(Math.floor(signedAt / 1000) + lifetime);
       const params = new URLSearchParams({ u: url, mode: "card", exp, sig: signature(url, "card", exp) });
+      // A VM's wall clock steps back when it syncs with its host (on the CI VMs by as much as 0.4 s): this read runs a second behind the signing.
+      const readAt = signedAt - 1000;
+      t.mock.timers.enable({ apis: ["Date"], now: readAt });
       const failed = await app.inject({ url: `/api/img-proxy?${params}`, headers: { "if-none-match": "*" } });
+      t.mock.timers.reset();
       assert.equal(failed.statusCode, 502);
       const cache = String(failed.headers["cache-control"]);
       const seconds = Number(/(?:^|[, ])max-age=(\d+)/.exec(cache)?.[1]);
-      assert.ok(seconds > 0 && seconds <= Math.min(60, lifetime), cache);
+      assert.equal(seconds, Math.min(60, Number(exp) - Math.floor(readAt / 1000)), cache);
       assert.match(cache, new RegExp(`s-maxage=${seconds}(?:,|$)`));
       assert.equal(failed.headers.etag, undefined);
     }
@@ -319,16 +324,18 @@ test("image failures are cached for at most a minute and never beyond the signat
   }
 });
 
-test("pending animations expire at caches, then publish the prepared disk rendition without refetching", async () => {
+test("pending animations expire at caches, then publish the prepared disk rendition without refetching", async (t) => {
   const { default: Fastify } = await import("fastify");
   const { registerMedia } = await import("../apps/api/src/routes/media.ts");
   const { signature } = await import("@aihot/backend/media/imgproxy");
   const { convertAnimated } = await import("@aihot/backend/media/images");
   const { getBoss, QUEUES } = await import("@aihot/backend/jobs/queue");
+  const { sql } = await import("@aihot/backend/db");
   const app = Fastify();
   registerMedia(app);
   const url = `${base}/anim.gif`;
-  const exp = String(Math.ceil(Date.now() / 1000) + 3600);
+  const signedAt = Date.now();
+  const exp = String(Math.ceil(signedAt / 1000) + 3600);
   const params = new URLSearchParams({ u: url, mode: "thumb", exp, sig: signature(url, "thumb", exp) });
   const first = await app.inject({ url: `/api/img-proxy?${params}` });
   assert.equal(first.statusCode, 200);
@@ -338,17 +345,23 @@ test("pending animations expire at caches, then publish the prepared disk rendit
   assert.deepEqual(again.rawPayload, first.rawPayload);
   const fetched = animationHits;
   const boss = await getBoss();
+  // Queued a minute ago: the fetch's `start_after <= now` holds even when the VM's clock steps back (on the CI VMs by as much as 0.4 s).
+  await sql`UPDATE pgboss.job SET start_after = start_after - interval '1 minute' WHERE name = ${QUEUES.prepareMedia} AND state = 'created'`;
   const jobs = await boss.fetch<{ url: string; mode: string }>(QUEUES.prepareMedia);
   assert.equal(jobs.length, 1);
   const saved = await convertAnimated(jobs[0]!.data.url, jobs[0]!.data.mode);
   assert.ok(saved > 0);
   await boss.complete(QUEUES.prepareMedia, jobs[0]!.id);
+  // A VM's wall clock steps back when it syncs with its host (on the CI VMs by as much as 0.4 s): this read runs a second behind the signing.
+  const readAt = signedAt - 1000;
+  t.mock.timers.enable({ apis: ["Date"], now: readAt });
   const prepared = await app.inject({ url: `/api/img-proxy?${params}`, headers: { "if-none-match": String(first.headers.etag) } });
+  t.mock.timers.reset();
   assert.equal(prepared.statusCode, 200, "a cached original GIF must not hide the prepared WebP");
   assert.notEqual(prepared.headers.etag, first.headers.etag);
   assert.equal(prepared.headers["content-type"], "image/webp");
   const ttl = Number(/s-maxage=(\d+)/.exec(String(prepared.headers["cache-control"]))?.[1]);
-  assert.ok(ttl > 3500 && ttl <= 3601, "the signature's remaining hour, never the seven-day ceiling");
+  assert.equal(ttl, Number(exp) - Math.floor(readAt / 1000), "the signature's remaining hour at the reader's clock, never the seven-day ceiling");
   assert.equal(animationHits, fetched);
   const unchanged = await produceImage(`${base}/tiny.gif`, "thumb");
   assert.equal(unchanged.pendingAnimation, true);
